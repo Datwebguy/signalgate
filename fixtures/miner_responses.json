@@ -1,0 +1,30 @@
+{
+  "unit_test_fixtures": true,
+  "veridex_clean": {
+    "schema": "veridex.v1",
+    "result": { "evidence": "Clean smart contract, no malicious delegatecall" },
+    "capabilityIntelligence": { "confidence": 0.92, "state": "safe" }
+  },
+  "veridex_malicious": {
+    "schema": "veridex.v1",
+    "result": { "evidence": "High risk honeypot logic detected" },
+    "capabilityIntelligence": { "confidence": 0.98, "state": "malicious", "risk": "high" }
+  },
+  "degenlens_clean": {
+    "status": "success",
+    "confidence": 0.88,
+    "label": "verified",
+    "reason": "Wallet active on Base with regular transactions"
+  },
+  "engine_402_challenge": {
+    "error": "payment required",
+    "accepts": [
+      {
+        "scheme": "exact",
+        "price": "$0.01",
+        "network": "eip155:84532",
+        "payTo": "0x5a2324aA18613FAD4e44bDF0d6c73Ec1f6D87ff8"
+      }
+    ]
+  }
+}
