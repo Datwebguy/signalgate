@@ -96,7 +96,7 @@ export default function RoutingExperiments() {
             <div className="bg-[#0b0f19] border border-cyan-500/20 bg-cyan-950/10 rounded-xl p-4">
               <div className="text-xs text-cyan-400 font-mono mb-1">Recommended Envelope</div>
               <div className="text-sm font-bold text-white">
-                Confidence $\ge$ {sweepResult.optimalEnvelope?.recommendedConfidence} &bull; Deadline {sweepResult.optimalEnvelope?.recommendedDeadlineMs}ms
+                Confidence ≥ {sweepResult.optimalEnvelope?.recommendedConfidence} &bull; Deadline {sweepResult.optimalEnvelope?.recommendedDeadlineMs}ms
               </div>
               <div className="text-[11px] text-gray-400 mt-1">
                 Yields {sweepResult.optimalEnvelope?.expectedQualifiedMiners} qualified multi-intent miners

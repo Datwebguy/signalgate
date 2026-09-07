@@ -297,146 +297,105 @@ export default function Home() {
               </>
             ) : (
               <>
-                <button
-                  onClick={() => setActiveView('landing')}
-                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors flex items-center gap-1"
-                >
-                  &larr; Overview
-                </button>
-                <button
-                  onClick={() => setActiveView('console')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'console'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Terminal className="w-3.5 h-3.5" />
-                  Risk Gate
-                </button>
-                <button
-                  onClick={() => setActiveView('stream')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'stream'
-                      ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-                  <span>Live Stream</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-                </button>
-                <button
-                  onClick={() => setActiveView('experiments')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'experiments'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Sliders className="w-3.5 h-3.5" />
-                  Routing Lab
-                </button>
-                <button
-                  onClick={() => setActiveView('compliance')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'compliance'
-                      ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                  Compliance
-                </button>
-                <button
-                  onClick={() => setActiveView('watchlist')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'watchlist'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  Watchlist
-                </button>
-                <button
-                  onClick={() => setActiveView('catalog')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'catalog'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Cpu className="w-3.5 h-3.5" />
-                  Miners ({catalog.length || 131})
-                </button>
-                <button
-                  onClick={() => setActiveView('history')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                    activeView === 'history'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Clock className="w-3.5 h-3.5" />
-                  Audit Log
-                </button>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <button
+                    onClick={() => setActiveView('console')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'console'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Risk Firewall</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('stream')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'stream'
+                        ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                    <span>Live Feed</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('compliance')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'compliance'
+                        ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span>Compliance</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('catalog')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'catalog'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Cpu className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Miners ({catalog.length || 131})</span>
+                  </button>
+
+                  <div className="h-4 w-px bg-[#1f2638] mx-1 hidden lg:block" />
+
+                  <button
+                    onClick={() => setActiveView('watchlist')}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'watchlist'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Watchlist</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('experiments')}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'experiments'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Routing Lab</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('history')}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                      activeView === 'history'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Audit Log</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2.5 ml-2">
+                  <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-400 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>{catalog.length || 131} Miners Online</span>
+                  </div>
+                  <button
+                    onClick={() => setActiveView('landing')}
+                    className="px-3 py-1.5 rounded-lg border border-[#232b3e] bg-[#0c101a] hover:bg-[#141b29] text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center gap-1"
+                  >
+                    &larr; Overview
+                  </button>
+                </div>
               </>
             )}
           </nav>
         </div>
-
-        {/* Real-time Network Telemetry Bar - Operational Workspace Only */}
-        {activeView !== 'landing' && (
-          <div className="bg-[#05070a] border-t border-[#141822] px-4 py-2 text-[11px] font-mono">
-            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-gray-400">
-              <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${status?.network?.node?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                  <span>Node: <strong className="text-gray-300">devnode.telegraphprotocol.com</strong></span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${status?.network?.engine?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                  <span>Engine: <strong className="text-gray-300">Online</strong></span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${status?.network?.daemon?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                  <span>Daemon: <strong className="text-gray-300">Online</strong></span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Radio className="w-3 h-3 text-emerald-400" />
-                  <span>Advertised Miners: <strong className="text-emerald-400">{status?.catalog?.activeMiners || catalog.length || '...'} Live</strong></span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs">
-                  <span>x402 Settlement:</span>
-                  {status?.payment?.isConfigured ? (
-                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Signed (Base Sepolia)
-                    </span>
-                  ) : (
-                    <span className="text-amber-400 font-semibold flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" /> Standby (402 Fail-Closed)
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={() => {
-                    refreshStatus();
-                    loadCatalog(true);
-                  }}
-                  disabled={isRefreshingStatus}
-                  title="Refresh network telemetry"
-                  className="p-1 rounded hover:bg-[#181d28] text-gray-400 hover:text-white transition-colors"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingStatus ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* VIEW 1: FULL INCLINED LANDING PAGE */}
@@ -805,72 +764,144 @@ if data.get("data", {}).get("verdict") != "ALLOW":
           {/* TAB 1: GATE CONSOLE */}
           {activeView === 'console' && (
             <div className="space-y-6">
-              {/* Flywheel Live Demand Generator */}
-              <FlywheelBanner />
+              {/* Introduction & Quick Context Card */}
+              <div className="bg-[#0b0f19] border border-[#1f2638] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Action Proposal Form */}
-              <div className="bg-[#0f131c] border border-[#1d2433] rounded-xl p-5 sm:p-6 shadow-2xl">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Terminal className="w-4 h-4 text-emerald-400" />
-                    <h2 className="text-sm font-bold tracking-wider uppercase text-white">
-                      Pre-Action Evaluation
-                    </h2>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#181f2e]">
+                  <div className="space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>DECENTRALIZED PRE-ACTION VERIFICATION</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                      Pre-Action Risk Firewall
+                    </h1>
+                    <p className="text-sm text-gray-400 max-w-2xl leading-relaxed">
+                      Evaluate any transaction proposal before signing. Signalgate queries live Telegraph miners in parallel to inspect contract bytecode, fraud registries, drainers, and counterparty risks.
+                    </p>
                   </div>
-                  <span className="text-[11px] text-gray-400 font-mono">
-                    Policy: Fail-Closed &bull; Consensus Floor: {status?.config?.gateMinConfidence ? `${status.config.gateMinConfidence * 100}%` : '60%'}
-                  </span>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="px-4 py-2 rounded-xl bg-[#121724] border border-[#232b3e] text-xs font-mono">
+                      <div className="text-gray-400 text-[10px] uppercase">Policy Mode</div>
+                      <div className="text-amber-400 font-bold">Fail-Closed</div>
+                    </div>
+                    <div className="px-4 py-2 rounded-xl bg-[#121724] border border-[#232b3e] text-xs font-mono">
+                      <div className="text-gray-400 text-[10px] uppercase">Active Miners</div>
+                      <div className="text-emerald-400 font-bold">{catalog.length || 131} Live</div>
+                    </div>
+                  </div>
                 </div>
 
-                <form onSubmit={handleRunGate} className="space-y-4">
+                {/* Quick Test Preset Chips */}
+                <div className="pt-5">
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+                    Click a sample scenario to test immediately:
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddress('0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640');
+                        setActionText('Swap 5 ETH for USDC via Uniswap V3 Pool');
+                      }}
+                      className="p-3.5 rounded-xl bg-[#101522] hover:bg-[#161e30] border border-[#1f283d] hover:border-emerald-500/40 transition-all text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span className="text-xs font-bold text-white group-hover:text-emerald-300">Uniswap V3 Pool</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 ml-auto">Safe</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 truncate">Swap 5 ETH for USDC</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddress('0x7a250d5630b4cf539739df2c5dacb4c659f2488d');
+                        setActionText('Sign unlimited ERC-20 token approval for unknown router');
+                      }}
+                      className="p-3.5 rounded-xl bg-[#101522] hover:bg-[#161e30] border border-[#1f283d] hover:border-rose-500/40 transition-all text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
+                        <span className="text-xs font-bold text-white group-hover:text-rose-300">Phishing Drainer</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 ml-auto">Threat</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 truncate">Unlimited token approval</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddress('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+                        setActionText('Transfer 1,000 USDC to counterparty');
+                      }}
+                      className="p-3.5 rounded-xl bg-[#101522] hover:bg-[#161e30] border border-[#1f283d] hover:border-cyan-500/40 transition-all text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <span className="text-xs font-bold text-white group-hover:text-cyan-300">USDC Contract</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 ml-auto">Standard</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 truncate">Transfer 1,000 USDC</p>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Proposal Form */}
+              <div className="bg-[#0b0f19] border border-[#1f2638] rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <form onSubmit={handleRunGate} className="space-y-6">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">
-                      Target Wallet Address
+                    <label className="block text-xs uppercase tracking-wider text-gray-300 font-bold mb-2">
+                      Target Address or Contract
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter EVM address (e.g. 0x...)"
+                      placeholder="Enter EVM address (e.g. 0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640)"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      className="w-full bg-[#07090e] border border-[#1b2230] rounded px-3.5 py-2.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                      className="w-full bg-[#070a12] border border-[#1d2538] rounded-xl px-4 py-3.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/60 transition-all shadow-inner"
                     />
+                    <p className="text-[11px] text-gray-500 mt-1.5">
+                      The counterparty wallet, decentralized exchange, vault, or smart contract to evaluate.
+                    </p>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs uppercase tracking-wider text-gray-400">
-                        Proposed Wallet Action
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs uppercase tracking-wider text-gray-300 font-bold">
+                        Proposed Transaction Action
                       </label>
-                      <div className="flex items-center gap-1.5 text-[11px]">
-                        <span className="text-gray-500">Quick labels:</span>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-gray-500">Quick templates:</span>
                         <button
                           type="button"
                           onClick={() => setActionText('Transfer 1,000 USDC to counterparty')}
-                          className="text-gray-400 hover:text-emerald-400 transition-colors underline"
+                          className="px-2 py-0.5 rounded bg-[#121724] border border-[#232b3e] text-gray-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-colors"
                         >
                           Transfer
                         </button>
-                        <span className="text-gray-600">&bull;</span>
                         <button
                           type="button"
                           onClick={() => setActionText('Sign unlimited ERC-20 token approval for Uniswap Router')}
-                          className="text-gray-400 hover:text-emerald-400 transition-colors underline"
+                          className="px-2 py-0.5 rounded bg-[#121724] border border-[#232b3e] text-gray-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-colors"
                         >
                           Approval
                         </button>
-                        <span className="text-gray-600">&bull;</span>
                         <button
                           type="button"
                           onClick={() => setActionText('Execute swap 5 ETH for PEPE via DEX contract')}
-                          className="text-gray-400 hover:text-emerald-400 transition-colors underline"
+                          className="px-2 py-0.5 rounded bg-[#121724] border border-[#232b3e] text-gray-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-colors"
                         >
                           Swap
                         </button>
-                        <span className="text-gray-600">&bull;</span>
                         <button
                           type="button"
                           onClick={() => setActionText('Bridge 10 ETH to Layer 2 Arbitrum Bridge')}
-                          className="text-gray-400 hover:text-emerald-400 transition-colors underline"
+                          className="px-2 py-0.5 rounded bg-[#121724] border border-[#232b3e] text-gray-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-colors"
                         >
                           Bridge
                         </button>
@@ -881,26 +912,26 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                       value={actionText}
                       onChange={(e) => setActionText(e.target.value)}
                       placeholder="Describe proposed action (e.g. Transfer 50 ETH, Approve contract 0x...)"
-                      className="w-full bg-[#07090e] border border-[#1b2230] rounded px-3.5 py-2.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                      className="w-full bg-[#070a12] border border-[#1d2538] rounded-xl px-4 py-3.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/60 transition-all shadow-inner"
                     />
                   </div>
 
                   {/* Advanced Routing & Intent Parameters Toggle */}
-                  <div className="pt-2 border-t border-[#182030]">
+                  <div className="pt-2 border-t border-[#181f2e]">
                     <button
                       type="button"
                       onClick={() => setShowAdvancedOptions((o) => !o)}
-                      className="text-xs font-mono text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                      className="text-xs font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-1.5"
                     >
-                      <Sliders className="w-3 h-3" />
-                      <span>{showAdvancedOptions ? 'Hide Intent & Routing Parameters' : 'Configure Intent, Min Confidence & Deadline'}</span>
+                      <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{showAdvancedOptions ? 'Hide Advanced Consensus Parameters' : 'Advanced Consensus Parameters (Confidence Quorum & Deadline)'}</span>
                     </button>
 
                     {showAdvancedOptions && (
-                      <div className="mt-3 p-3.5 bg-[#090d16] border border-[#1d2639] rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="mt-4 p-4 bg-[#080c16] border border-[#1c2438] rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-gray-400 font-mono">Min Confidence Floor:</span>
+                          <div className="flex items-center justify-between text-xs mb-2">
+                            <span className="text-gray-300 font-semibold">Min Confidence Quorum:</span>
                             <span className="text-emerald-400 font-bold font-mono">{(minConfidence * 100).toFixed(0)}%</span>
                           </div>
                           <input
@@ -912,14 +943,14 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                             onChange={(e) => setMinConfidence(parseFloat(e.target.value))}
                             className="w-full accent-emerald-500"
                           />
-                          <p className="text-[10px] text-gray-500 mt-1">
-                            Network rejects verdicts if consensus confidence falls below this threshold.
+                          <p className="text-[11px] text-gray-500 mt-1">
+                            Network rejects verdicts if miner consensus confidence falls below this floor.
                           </p>
                         </div>
 
                         <div>
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-gray-400 font-mono">Routing Deadline:</span>
+                          <div className="flex items-center justify-between text-xs mb-2">
+                            <span className="text-gray-300 font-semibold">Routing Deadline:</span>
                             <span className="text-cyan-400 font-bold font-mono">{deadlineMs}ms</span>
                           </div>
                           <input
@@ -931,7 +962,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                             onChange={(e) => setDeadlineMs(parseInt(e.target.value, 10))}
                             className="w-full accent-cyan-500"
                           />
-                          <p className="text-[10px] text-gray-500 mt-1">
+                          <p className="text-[11px] text-gray-500 mt-1">
                             Maximum latency allowed for live miner responses before fail-closed cutoff.
                           </p>
                         </div>
@@ -940,30 +971,31 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                   </div>
 
                   {errorMsg && (
-                    <div className="p-3 rounded bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                    <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
                       <XCircle className="w-4 h-4 shrink-0" />
                       <span>{errorMsg}</span>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="text-[11px] text-gray-500 font-mono">
-                      Actions will NOT fire until live Telegraph miners agree.
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                    <div className="text-xs text-gray-400 flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Actions will NOT execute until live Telegraph miners reach consensus.</span>
                     </div>
                     <button
                       type="submit"
                       disabled={isRunning}
-                      className="px-5 py-2.5 rounded bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs tracking-wider uppercase flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/10 cursor-pointer"
+                      className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm tracking-wide uppercase flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 shadow-xl shadow-emerald-500/20 cursor-pointer"
                     >
                       {isRunning ? (
                         <>
                           <RefreshCw className="w-4 h-4 animate-spin" />
-                          Querying Live Miners...
+                          Evaluating with Live Miners...
                         </>
                       ) : (
                         <>
                           <Shield className="w-4 h-4" />
-                          Run Gate Check
+                          Evaluate Safety with Live Miners
                         </>
                       )}
                     </button>
@@ -1232,37 +1264,42 @@ if data.get("data", {}).get("verdict") != "ALLOW":
 
           {/* TAB 2: LIVE CATALOG BROWSER */}
           {activeView === 'catalog' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div>
-                  <h2 className="text-sm font-bold tracking-wider uppercase text-white flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-emerald-400" />
-                    Live Telegraph Miner Network
-                  </h2>
-                  <p className="text-xs text-gray-400">
-                    Direct live registry from devnode.telegraphprotocol.com/api/miners ({catalog.length} active registered miners)
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-gray-500" />
-                    <input
-                      type="text"
-                      placeholder="Search name, intent, or slug..."
-                      value={catalogSearch}
-                      onChange={(e) => setCatalogSearch(e.target.value)}
-                      className="bg-[#0f131c] border border-[#1d2433] rounded pl-8 pr-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50"
-                    />
+            <div className="space-y-6">
+              <div className="bg-[#0b0f19] border border-[#1f2638] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>{catalog.length || 131} ACTIVE MINERS REGISTERED</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                      Telegraph Miner Directory
+                    </h1>
+                    <p className="text-sm text-gray-400 max-w-2xl leading-relaxed mt-1">
+                      The live decentralized network of intelligence providers. Signalgate automatically discovers, routes, and micropays these miners to inspect contract bytecode, fraud registries, and state risks.
+                    </p>
                   </div>
-                  <button
-                    onClick={() => loadCatalog(true)}
-                    disabled={isLoadingCatalog}
-                    className="px-3 py-1.5 rounded bg-[#181e2b] hover:bg-[#222b3d] text-xs text-gray-300 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${isLoadingCatalog ? 'animate-spin' : ''}`} />
-                    Refresh Catalog
-                  </button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3.5 top-3 text-gray-500" />
+                      <input
+                        type="text"
+                        placeholder="Search miners, intents..."
+                        value={catalogSearch}
+                        onChange={(e) => setCatalogSearch(e.target.value)}
+                        className="bg-[#070a12] border border-[#1d2538] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/60 w-64 shadow-inner"
+                      />
+                    </div>
+                    <button
+                      onClick={() => loadCatalog(true)}
+                      disabled={isLoadingCatalog}
+                      className="px-4 py-2.5 rounded-xl bg-[#121724] hover:bg-[#182030] border border-[#232b3e] text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isLoadingCatalog ? 'animate-spin' : ''}`} />
+                      <span>Refresh</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1313,42 +1350,87 @@ if data.get("data", {}).get("verdict") != "ALLOW":
           {/* TAB 3: WATCHLIST TABLE */}
           {activeView === 'watchlist' && (
             <div className="space-y-6">
-              <div className="bg-[#0f131c] border border-[#1d2433] rounded-xl p-5">
-                <h3 className="text-xs uppercase tracking-wider font-bold text-white mb-3 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-emerald-400" />
-                  Add Address to Continuous Watchlist
-                </h3>
-                <form onSubmit={handleAddWatchlist} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <input
-                    type="text"
-                    placeholder="Target address (0x...)"
-                    value={newWatchAddress}
-                    onChange={(e) => setNewWatchAddress(e.target.value)}
-                    className="bg-[#07090e] border border-[#1b2230] rounded px-3 py-2 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Label (e.g. Treasury Multisig)"
-                    value={newWatchLabel}
-                    onChange={(e) => setNewWatchLabel(e.target.value)}
-                    className="bg-[#07090e] border border-[#1b2230] rounded px-3 py-2 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50"
-                  />
-                  <div className="flex gap-2">
+              <div className="bg-[#0b0f19] border border-[#1f2638] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#181f2e]">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>CONTINUOUS BACKGROUND MONITORING</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                      Autonomous Watchlist
+                    </h1>
+                    <p className="text-sm text-gray-400 max-w-2xl leading-relaxed mt-1">
+                      Protect critical multisigs, treasury vaults, and hot wallets 24/7. The background daemon regularly polls live Telegraph miners to detect newly identified vulnerabilities or blacklists.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={async () => {
+                        setIsPollingWatchlist(true);
+                        try {
+                          if (watchlist.length > 0) {
+                            await fetch('/api/gate/run', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                address: watchlist[0].address,
+                                action: watchlist[0].proposedActionText,
+                              }),
+                            });
+                            loadWatchlist();
+                            loadHistory();
+                          }
+                        } finally {
+                          setIsPollingWatchlist(false);
+                        }
+                      }}
+                      disabled={isPollingWatchlist || watchlist.length === 0}
+                      className="px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-xs font-bold text-emerald-300 flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isPollingWatchlist ? 'animate-spin' : ''}`} />
+                      <span>Trigger Poll Now</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Add Watchlist Form */}
+                <div className="pt-6">
+                  <h3 className="text-xs uppercase tracking-wider font-bold text-gray-300 mb-3 flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-emerald-400" />
+                    Add Address to Continuous Watchlist
+                  </h3>
+                  <form onSubmit={handleAddWatchlist} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Target address (0x...)"
+                      value={newWatchAddress}
+                      onChange={(e) => setNewWatchAddress(e.target.value)}
+                      className="bg-[#070a12] border border-[#1d2538] rounded-xl px-4 py-2.5 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/60 shadow-inner sm:col-span-1"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Label (e.g. Treasury Multisig)"
+                      value={newWatchLabel}
+                      onChange={(e) => setNewWatchLabel(e.target.value)}
+                      className="bg-[#070a12] border border-[#1d2538] rounded-xl px-4 py-2.5 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/60 shadow-inner sm:col-span-1"
+                    />
                     <input
                       type="text"
                       placeholder="Action description"
                       value={newWatchAction}
                       onChange={(e) => setNewWatchAction(e.target.value)}
-                      className="flex-1 bg-[#07090e] border border-[#1b2230] rounded px-3 py-2 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50"
+                      className="bg-[#070a12] border border-[#1d2538] rounded-xl px-4 py-2.5 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/60 shadow-inner sm:col-span-1"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs rounded uppercase tracking-wider cursor-pointer"
+                      className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
                     >
-                      Add
+                      Add To Watchlist
                     </button>
-                  </div>
-                </form>
+                  </form>
+                </div>
               </div>
 
               <div className="bg-[#0f131c] border border-[#1d2433] rounded-xl overflow-hidden">
@@ -1454,23 +1536,30 @@ if data.get("data", {}).get("verdict") != "ALLOW":
 
           {/* TAB 4: AUDIT LOG */}
           {activeView === 'history' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-bold tracking-wider uppercase text-white flex items-center gap-2">
-                    <Database className="w-4 h-4 text-emerald-400" />
-                    Append-Only Gate Audit Log
-                  </h2>
-                  <p className="text-xs text-gray-400">
-                    Every decision stored with live miner payloads and payment receipts
-                  </p>
+            <div className="space-y-6">
+              <div className="bg-[#0b0f19] border border-[#1f2638] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>CRYPTOGRAPHIC AUDIT LEDGER</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                      Append-Only Gate Audit Log
+                    </h1>
+                    <p className="text-sm text-gray-400 max-w-2xl leading-relaxed mt-1">
+                      Permanent, tamper-evident record of all pre-action decisions. Each entry preserves queried miners, raw consensus payloads, and payment receipts.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={loadHistory}
+                    className="px-4 py-2.5 rounded-xl bg-[#121724] hover:bg-[#182030] border border-[#232b3e] text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-2 transition-all cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Refresh Ledger</span>
+                  </button>
                 </div>
-                <button
-                  onClick={loadHistory}
-                  className="px-3 py-1.5 rounded bg-[#181e2b] hover:bg-[#222b3d] text-xs text-gray-300 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <RefreshCw className="w-3 h-3" /> Refresh Logs
-                </button>
               </div>
 
               <div className="space-y-3">
@@ -1531,7 +1620,10 @@ if data.get("data", {}).get("verdict") != "ALLOW":
 
           {/* TAB 6: ROUTING EXPERIMENTS & PARAMETER SWEEP */}
           {activeView === 'experiments' && (
-            <RoutingExperiments />
+            <div className="space-y-8">
+              <FlywheelBanner />
+              <RoutingExperiments />
+            </div>
           )}
 
           {/* TAB 7: COMPLIANCE QUARANTINE & ACTION EXECUTION LEDGER */}

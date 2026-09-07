@@ -106,7 +106,7 @@ export default function FlywheelBanner() {
       <div className="mt-4 pt-4 border-t border-[#181f2e] grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
         <div className="sm:col-span-2">
           <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-gray-400 font-mono">Demand Flywheel Target ($\ge 100$ asks)</span>
+            <span className="text-gray-400 font-medium">Network Demand Progress (≥ 100 Asks Milestone)</span>
             <span className="font-bold text-white font-mono">
               {stats.totalAsksDispatched} / {stats.targetFlywheelGoal} ({pct}%)
             </span>
