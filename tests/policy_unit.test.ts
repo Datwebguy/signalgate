@@ -3,6 +3,14 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import { evaluateGatePolicy } from '../lib/gate/policy';
+import {
+  quarantineWallet,
+  getQuarantinedWallets,
+  releaseQuarantinedWallet,
+  recordExecutedAction,
+  getExecutedActions,
+  getFlywheelStats,
+} from '../lib/db';
 import type { MinerReceipt } from '../lib/telegraph/types';
 
 // Load fixtures behind explicit unit test flag
@@ -162,4 +170,48 @@ describe('Signalgate Fail-Closed Policy Unit Tests', () => {
     checkDir(appDir);
     checkDir(libDir);
   });
+
+  test('Act on Signal: Compliance Quarantine and Release State Transitions', () => {
+    const testAddr = '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+
+    quarantineWallet(testAddr, 'High risk malicious counterparty detected', { flag: 'phishing' }, 0.95);
+    const list = getQuarantinedWallets();
+    const found = list.find((q: any) => q.address === testAddr.toLowerCase());
+    assert.ok(found, 'Quarantined address must exist in database');
+    assert.strictEqual(found.riskScore, 0.95);
+
+    const released = releaseQuarantinedWallet(testAddr);
+    assert.strictEqual(released, true);
+
+    const afterRelease = getQuarantinedWallets();
+    const stillFound = afterRelease.find((q: any) => q.address === testAddr.toLowerCase());
+    assert.strictEqual(stillFound, undefined, 'Address must be removed after release');
+  });
+
+  test('Act on Signal: Action Execution Record on Verified ALLOW', () => {
+    const runId = `run_${Date.now()}`;
+    const testAddr = '0x1111111111111111111111111111111111111111';
+
+    const action = recordExecutedAction(
+      runId,
+      testAddr,
+      'Transfer 1,000 USDC',
+      'EXECUTED',
+      { broadcastTx: '0xabc123', status: 'CONFIRMED' }
+    );
+    assert.strictEqual(action.status, 'EXECUTED');
+    assert.strictEqual(action.targetAddress, testAddr);
+
+    const recent = getExecutedActions(10);
+    const found = recent.find((a: any) => a.actionId === action.actionId);
+    assert.ok(found, 'Executed action must be recorded in ledger');
+  });
+
+  test('Flywheel: Track 3 live requests stats and progress calculation', () => {
+    const stats = getFlywheelStats();
+    assert.ok(typeof stats.totalAsksDispatched === 'number');
+    assert.ok(typeof stats.totalGateRuns === 'number');
+    assert.strictEqual(stats.targetFlywheelGoal, 100);
+  });
 });
+

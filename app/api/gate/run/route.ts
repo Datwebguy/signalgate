@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { address, action } = body;
+    const { address, action, minConfidence, deadlineMs, requestedIntents } = body;
 
     if (!address || typeof address !== 'string' || !address.trim()) {
       return NextResponse.json(
@@ -17,7 +17,12 @@ export async function POST(request: Request) {
 
     const actionText = typeof action === 'string' && action.trim() ? action.trim() : 'Standard transaction proposal';
 
-    const result = await executeGateRun(address.trim(), actionText);
+    const result = await executeGateRun(address.trim(), {
+      userActionText: actionText,
+      minConfidence: typeof minConfidence === 'number' ? minConfidence : undefined,
+      deadlineMs: typeof deadlineMs === 'number' ? deadlineMs : undefined,
+      requestedIntents: Array.isArray(requestedIntents) ? requestedIntents : undefined,
+    });
 
     return NextResponse.json({
       success: true,

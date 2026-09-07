@@ -37,14 +37,23 @@ import {
   Share2,
 } from 'lucide-react';
 import type { GateRunResult, WatchlistEntry, MinerReceipt } from '@/lib/telegraph/types';
+import FlywheelBanner from '@/components/FlywheelBanner';
+import LiveSignalStream from '@/components/LiveSignalStream';
+import RoutingExperiments from '@/components/RoutingExperiments';
+import ComplianceLedger from '@/components/ComplianceLedger';
 
 export default function Home() {
-  // Navigation view: 'landing' (full landing page) or 'console' | 'catalog' | 'watchlist' | 'history'
-  const [activeView, setActiveView] = useState<'landing' | 'console' | 'catalog' | 'watchlist' | 'history'>('landing');
+  // Navigation view
+  const [activeView, setActiveView] = useState<
+    'landing' | 'console' | 'catalog' | 'watchlist' | 'history' | 'stream' | 'experiments' | 'compliance'
+  >('landing');
 
   // Gate execution state
   const [address, setAddress] = useState('');
   const [actionText, setActionText] = useState('Transfer 1,000 USDC to counterparty');
+  const [minConfidence, setMinConfidence] = useState<number>(0.6);
+  const [deadlineMs, setDeadlineMs] = useState<number>(5000);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState(false);
   const [currentRun, setCurrentRun] = useState<GateRunResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -162,6 +171,8 @@ export default function Home() {
         body: JSON.stringify({
           address: address.trim(),
           action: actionText.trim(),
+          minConfidence,
+          deadlineMs,
         }),
       });
 
@@ -278,15 +289,38 @@ export default function Home() {
               Risk Gate
             </button>
             <button
-              onClick={() => setActiveView('catalog')}
+              onClick={() => setActiveView('stream')}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'catalog'
+                activeView === 'stream'
+                  ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+              <span>Live Stream</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+            </button>
+            <button
+              onClick={() => setActiveView('experiments')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                activeView === 'experiments'
                   ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              <Cpu className="w-3.5 h-3.5" />
-              Miners ({catalog.length})
+              <Sliders className="w-3.5 h-3.5" />
+              Routing Lab
+            </button>
+            <button
+              onClick={() => setActiveView('compliance')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                activeView === 'compliance'
+                  ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              Compliance
             </button>
             <button
               onClick={() => setActiveView('watchlist')}
@@ -298,6 +332,17 @@ export default function Home() {
             >
               <Layers className="w-3.5 h-3.5" />
               Watchlist
+            </button>
+            <button
+              onClick={() => setActiveView('catalog')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                activeView === 'catalog'
+                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Cpu className="w-3.5 h-3.5" />
+              Miners ({catalog.length})
             </button>
             <button
               onClick={() => setActiveView('history')}
@@ -721,6 +766,9 @@ if (result.verdict !== 'ALLOW') {
           {/* TAB 1: GATE CONSOLE */}
           {activeView === 'console' && (
             <div className="space-y-6">
+              {/* Flywheel Live Demand Generator */}
+              <FlywheelBanner />
+
               {/* Action Proposal Form */}
               <div className="bg-[#0f131c] border border-[#1d2433] rounded-xl p-5 sm:p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-4">
@@ -796,6 +844,60 @@ if (result.verdict !== 'ALLOW') {
                       placeholder="Describe proposed action (e.g. Transfer 50 ETH, Approve contract 0x...)"
                       className="w-full bg-[#07090e] border border-[#1b2230] rounded px-3.5 py-2.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
+                  </div>
+
+                  {/* Advanced Routing & Intent Parameters Toggle */}
+                  <div className="pt-2 border-t border-[#182030]">
+                    <button
+                      type="button"
+                      onClick={() => setShowAdvancedOptions((o) => !o)}
+                      className="text-xs font-mono text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                    >
+                      <Sliders className="w-3 h-3" />
+                      <span>{showAdvancedOptions ? 'Hide Intent & Routing Parameters' : 'Configure Intent, Min Confidence & Deadline'}</span>
+                    </button>
+
+                    {showAdvancedOptions && (
+                      <div className="mt-3 p-3.5 bg-[#090d16] border border-[#1d2639] rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-gray-400 font-mono">Min Confidence Floor:</span>
+                            <span className="text-emerald-400 font-bold font-mono">{(minConfidence * 100).toFixed(0)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.3"
+                            max="0.95"
+                            step="0.05"
+                            value={minConfidence}
+                            onChange={(e) => setMinConfidence(parseFloat(e.target.value))}
+                            className="w-full accent-emerald-500"
+                          />
+                          <p className="text-[10px] text-gray-500 mt-1">
+                            Network rejects verdicts if consensus confidence falls below this threshold.
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-gray-400 font-mono">Routing Deadline:</span>
+                            <span className="text-cyan-400 font-bold font-mono">{deadlineMs}ms</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1000"
+                            max="15000"
+                            step="1000"
+                            value={deadlineMs}
+                            onChange={(e) => setDeadlineMs(parseInt(e.target.value, 10))}
+                            className="w-full accent-cyan-500"
+                          />
+                          <p className="text-[10px] text-gray-500 mt-1">
+                            Maximum latency allowed for live miner responses before fail-closed cutoff.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {errorMsg && (
@@ -932,6 +1034,55 @@ if (result.verdict !== 'ALLOW') {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Act on the Signal: State-Changing Outcome Card */}
+                  {currentRun.verdict === 'BLOCK' && (
+                    <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-rose-300 uppercase tracking-wider font-mono">
+                            Automatic Compliance Halt Activated
+                          </div>
+                          <p className="text-gray-400 text-[11px]">
+                            Target counterparty quarantined in SQLite compliance ledger. Downstream transaction execution locked.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setActiveView('compliance')}
+                        className="px-3 py-1.5 rounded bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-bold font-mono text-xs shrink-0"
+                      >
+                        Inspect Quarantine &rarr;
+                      </button>
+                    </div>
+                  )}
+
+                  {currentRun.verdict === 'ALLOW' && (
+                    <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-emerald-300 uppercase tracking-wider font-mono">
+                            Action Execution Verified & Dispatched
+                          </div>
+                          <p className="text-gray-400 text-[11px]">
+                            Target approved by consensus. Transaction intent transitioned to EXECUTED_FOR_BROADCAST with cryptographic receipts.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setActiveView('compliance')}
+                        className="px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold font-mono text-xs shrink-0"
+                      >
+                        Inspect Action Ledger &rarr;
+                      </button>
                     </div>
                   )}
 
@@ -1332,6 +1483,21 @@ if (result.verdict !== 'ALLOW') {
                 )}
               </div>
             </div>
+          )}
+
+          {/* TAB 5: REAL-TIME SIGNAL STREAM */}
+          {activeView === 'stream' && (
+            <LiveSignalStream />
+          )}
+
+          {/* TAB 6: ROUTING EXPERIMENTS & PARAMETER SWEEP */}
+          {activeView === 'experiments' && (
+            <RoutingExperiments />
+          )}
+
+          {/* TAB 7: COMPLIANCE QUARANTINE & ACTION EXECUTION LEDGER */}
+          {activeView === 'compliance' && (
+            <ComplianceLedger />
           )}
         </main>
       )}

@@ -95,3 +95,30 @@ export interface WatchlistEntry {
   active: boolean;
   createdAt: string;
 }
+
+export interface QuarantinedWallet {
+  address: string;
+  reason: string;
+  riskScore: number;
+  minerEvidence: unknown;
+  haltedAt: string;
+}
+
+export interface ExecutedAction {
+  actionId: string;
+  runId: string;
+  targetAddress: string;
+  actionType: string;
+  status: 'EXECUTED' | 'HALTED';
+  payload: unknown;
+  executedAt: string;
+}
+
+export interface FlywheelStats {
+  totalAsksDispatched: number;
+  totalPaidRequests: number;
+  totalGateRuns: number;
+  uniqueAddressesMonitored: number;
+  activeMinersEngaged: number;
+  targetFlywheelGoal: number; // 100
+}
