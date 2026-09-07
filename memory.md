@@ -5,12 +5,11 @@ Durable decisions. Update this file when something changes in production, not wh
 ## Locked decisions
 
 - Product name: Signalgate
-- Track: Telegraph Hackathon Season I, Track 3
 - Shape: pre-action risk gate, not an executor
 - Verdicts: ALLOW | WAIT | BLOCK
 - Policy: fail closed
 - Intelligence source: live Telegraph miners only
-- Payment: real x402 on the network Telegraph is running for the hackathon
+- Payment: real x402 on Base Sepolia (`eip155:84532`)
 - Persistence: every run stores raw miner payloads and payment/explorer proof
 - Watchlist: required, so usage is continuous
 
@@ -47,13 +46,12 @@ Durable decisions. Update this file when something changes in production, not wh
   - `GAS_PRICE`: GasWire (7301), GasPulse (147115), Optivis (7313)
   - `CRYPTO_PRICE`: KoinMix (42), Optivis (7311), ProvenancePrice (94217604)
 
-## Remaining open items
+## Operational Requirements
 
-- Wallet private key (`TELEGRAPH_EVM_PRIVATE_KEY`) with Base Sepolia USDC for live gate runs
-- Required X tags for hackathon judging posts (@Telegraphprotoc #TelegraphHackathon)
+- Wallet private key (`TELEGRAPH_EVM_PRIVATE_KEY`) with Base Sepolia USDC for paid production gate runs
 
 ## Do not forget
 
-- Track 1 and 2 already closed. Track 3 consumes what they left live.
 - If a needed intent has no live miner, WAIT. Do not substitute a made-up number.
 - Summarizer miners may rewrite language. They must not be the only source of a numeric claim.
+- The catalog is dynamic: always discover active miners at runtime.

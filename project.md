@@ -1,6 +1,6 @@
 # Signalgate
 
-Signalgate is a Track 3 Telegraph application. It is a pre-action risk gate.
+Signalgate is an autonomous pre-action risk gate built on the Telegraph Protocol network.
 
 A user (or agent) proposes a wallet action. Signalgate asks live Telegraph miners for wallet risk, fraud, on-chain state, and optional rationale checks. It returns ALLOW, WAIT, or BLOCK only after paid, routed answers come back from the live network.
 
@@ -18,9 +18,9 @@ Actions do not fire until Telegraph miners agree.
 - Not an evaluation script
 - Not a chatbot that invents numbers
 
-## Success for this weekend
+## Production Deliverables
 
-1. A public demo that performs real paid Telegraph requests.
-2. A watchlist loop that keeps generating live demand.
-3. Every verdict stores miner identity, raw answer, payment proof, and explorer link.
-4. X progress posts tagged for hackathon judging.
+1. A live interface and API that performs real paid Telegraph requests.
+2. A continuous watchlist poller that monitors targeted accounts.
+3. Complete receipt ledger storing miner identities, raw payloads, payment proofs, and explorer links.
+4. Fail-closed verdict engine protecting users and agents from malicious operations.

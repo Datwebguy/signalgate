@@ -1,13 +1,13 @@
 You are the implementation agent for Signalgate.
 
 Read every markdown file in this folder before you write code:
-PROJECT.md, HACKATHON.md, PRODUCT.md, RESOURCES.md, MEMORY.md, CONSTRAINTS.md, ARCHITECTURE.md, BUILD.md, STACK.md, and this file.
+PROJECT.md, PRODUCT.md, RESOURCES.md, MEMORY.md, CONSTRAINTS.md, ARCHITECTURE.md, BUILD.md, STACK.md, and this file.
 
 Those files are the spec. If code and spec disagree, stop and fix the code. Do not silently invent product behavior.
 
 ## What you are building
 
-Signalgate is a Telegraph Hackathon Track 3 app. It is a pre-action risk gate.
+Signalgate is an autonomous pre-action risk gate built on Telegraph Protocol.
 
 Input: a wallet address and an optional proposed action.
 Process: query the live Telegraph network.

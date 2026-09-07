@@ -4,8 +4,6 @@ Use official Telegraph surfaces only. Re-read this file before adding a dependen
 
 ## Product and docs
 
-- Hackathon home: https://hackathon.telegraphprotocol.com/
-- Rules: https://hackathon.telegraphprotocol.com/rules
 - Protocol home: https://telegraphprotocol.com/
 - Earn / apps: https://telegraphprotocol.com/earn
 - Guide: https://guide.telegraphprotocol.com/
@@ -57,14 +55,14 @@ The official README documents example node hosts. Confirm the current host from 
 
 ## Payments
 
-Telegraph gates inference with x402. Unauthorized calls return HTTP 402. Clients retry with a signed payment. Settlement is USDC on Base (hackathon network: Base Sepolia unless Telegraph says otherwise).
+Telegraph gates inference with x402. Unauthorized calls return HTTP 402. Clients retry with a signed payment. Settlement is USDC on Base (network: Base Sepolia unless configured otherwise).
 
 Signalgate must treat an unsettled 402 as failure, not as a skippable step.
 
 ## Community
 
 - X: @Telegraphprotoc
-- Official hackathon Discord (join; announcements live there)
+- Discord: Official Telegraph Discord
 
 ## Out of bounds
 

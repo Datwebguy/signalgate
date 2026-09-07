@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Signalgate — Pre-Action Risk Gate for Telegraph Protocol',
-  description: 'Actions do not fire until live Telegraph miners agree. Real-time pre-action risk verification powered by decentralized intelligence.',
+  title: 'Signalgate — Autonomous Pre-Action Risk Protocol',
+  description: 'Actions do not fire until live Telegraph miners agree. Decentralized, multi-miner pre-action risk firewall and consensus verification for Web3 & AI agents.',
 };
 
 export default function RootLayout({
@@ -12,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
+    <html lang="en" className="dark scroll-smooth">
+      <body className="min-h-screen bg-[#07090e] text-[#f3f4f6] antialiased selection:bg-emerald-500/25 selection:text-emerald-300">
         {children}
       </body>
     </html>

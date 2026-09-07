@@ -1,24 +1,23 @@
 # Signalgate
 
-Pre-action risk gate for Telegraph Track 3.
+Autonomous Pre-Action Risk Gate for Telegraph Protocol.
 
-Actions do not fire until live Telegraph miners agree.
+Transactions and agent actions do not execute until live Telegraph miners verify security, on-chain state, and fraud signals.
 
-## Docs
+## Architecture & Documentation
 
-| File | Why it exists |
+| File | Purpose |
 |---|---|
-| PROJECT.md | What this repo is |
-| HACKATHON.md | Track, deadline, judging |
-| PRODUCT.md | UX and verdict policy |
-| RESOURCES.md | Official Telegraph links and APIs |
-| MEMORY.md | Decisions and live findings |
-| CONSTRAINTS.md | No mocks, no fakes |
-| ARCHITECTURE.md | How pieces connect |
-| BUILD.md | Weekend order of work |
-| STACK.md | Default toolchain |
-| PROMPT.md | Agent starting prompt |
+| PROJECT.md | System overview, design goals, and non-goals |
+| PRODUCT.md | UX, operational workflows, and verdict policy |
+| RESOURCES.md | Official Telegraph protocol links and API endpoints |
+| MEMORY.md | Architectural decisions and live network findings |
+| CONSTRAINTS.md | Verification principles (no mocks, no fakes) |
+| ARCHITECTURE.md | High-level data flow and system connectivity |
+| BUILD.md | Implementation order and deployment guide |
+| STACK.md | Core runtime, frameworks, and dependencies |
+| PROMPT.md | Agent instructions and protocol verification rules |
 
-## Rule
+## Policy Invariant
 
-If you need a number, ask Telegraph. If Telegraph does not answer, WAIT.
+If you need intelligence, query live Telegraph miners. If Telegraph does not answer or payment has not settled, **WAIT**. Actions never proceed without cryptographic proof and consensus.

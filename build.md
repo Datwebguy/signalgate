@@ -1,21 +1,18 @@
-# Build
+# Build & Operational Sequence
 
-Deadline is close. Do not expand scope.
+## Implementation Order
 
-## Order
+1. Fund a Base Sepolia wallet with USDC for x402 payment flow.
+2. Confirm Node, Engine, Daemon health and query live miner catalog.
+3. Implement live catalog fetch + display in the management interface.
+4. Implement paid Engine / Miner asks with full EIP-3009 authorization handling.
+5. Add fraud/risk/on-chain asks dynamically selected from live registered miners.
+6. Enforce fail-closed gate policy (ALLOW, WAIT, BLOCK).
+7. Persist audit receipts and execution traces in SQLite.
+8. Run continuous background watchlist worker.
+9. Link Explorer URLs for all valid miners and request receipts.
+10. Deploy to production environment.
 
-1. Fund a Base Sepolia (or current hackathon) wallet with USDC for x402.
-2. Confirm Node, Engine, Daemon health and `GET` miner catalog.
-3. Implement catalog fetch + display in UI.
-4. Implement one paid `engine ask` and render the raw response.
-5. Add fraud/risk/on-chain asks selected from whatever the catalog actually exposes today.
-6. Add verdict policy.
-7. Persist runs.
-8. Add watchlist worker.
-9. Link Explorer when a request id exists.
-10. Deploy public URL.
-11. Record demo. Post on X. Message Discord.
+## Definition of Done
 
-## Done when
-
-A stranger can open the public URL, add a wallet, wait for live miners to answer, and see ALLOW, WAIT, or BLOCK with receipts that are not typed by us.
+A client or agent can submit a target wallet and proposed action, execute live queries across the Telegraph miner network, and receive an ALLOW, WAIT, or BLOCK verdict backed by cryptographically verifiable receipts and explorer links.
