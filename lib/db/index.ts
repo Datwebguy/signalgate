@@ -10,9 +10,22 @@ import type {
   FlywheelStats,
 } from '../telegraph/types';
 
-const DB_DIR = path.resolve(process.cwd(), 'data');
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
+const IS_VERCEL = !!process.env.VERCEL;
+const DB_DIR = IS_VERCEL ? path.join('/tmp', 'data') : path.resolve(process.cwd(), 'data');
+
+try {
+  if (!fs.existsSync(DB_DIR)) {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+  }
+  if (IS_VERCEL) {
+    const seedPath = path.resolve(process.cwd(), 'data', 'signalgate.sqlite');
+    const targetPath = path.join(DB_DIR, 'signalgate.sqlite');
+    if (fs.existsSync(seedPath) && !fs.existsSync(targetPath)) {
+      fs.copyFileSync(seedPath, targetPath);
+    }
+  }
+} catch (err) {
+  console.warn('Warning creating DB directory:', err);
 }
 
 const DB_PATH = path.join(DB_DIR, 'signalgate.sqlite');

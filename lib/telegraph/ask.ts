@@ -44,7 +44,7 @@ export async function askMiner(
   };
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), 10000);
 
   try {
     let response: Response;
@@ -175,7 +175,7 @@ export async function askEngine(query: string): Promise<MinerReceipt> {
   };
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), 10000);
 
   try {
     const response = await fetchWithPayment(url, {

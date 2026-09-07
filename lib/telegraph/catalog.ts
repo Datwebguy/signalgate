@@ -36,7 +36,40 @@ export async function fetchLiveMiners(forceRefresh = false): Promise<Miner[]> {
 
     cachedMiners = data;
     lastFetchTime = now;
+
+    // Persist snapshot in background for resilience
+    import('node:fs').then((fs) => {
+      import('node:path').then((path) => {
+        try {
+          const snapshotPath = path.resolve(process.cwd(), 'data', 'catalog_snapshot.json');
+          fs.writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
+        } catch {
+          // ignore
+        }
+      });
+    }).catch(() => {});
+
     return data;
+  } catch (err) {
+    if (cachedMiners && cachedMiners.length > 0) {
+      console.warn('[Telegraph Catalog] Live fetch failed, serving from active memory cache');
+      return cachedMiners;
+    }
+    try {
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+      const snapshotPath = path.resolve(process.cwd(), 'data', 'catalog_snapshot.json');
+      if (fs.existsSync(snapshotPath)) {
+        const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
+        if (Array.isArray(snapshot) && snapshot.length > 0) {
+          cachedMiners = snapshot;
+          return snapshot;
+        }
+      }
+    } catch {
+      // fallback
+    }
+    throw err;
   } finally {
     clearTimeout(timeout);
   }

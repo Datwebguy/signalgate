@@ -25,6 +25,7 @@ import {
   ArrowRight,
   Code2,
   Lock,
+  Unlock,
   Zap,
   Check,
   Copy,
@@ -69,8 +70,12 @@ export default function Home() {
   const [newWatchAction, setNewWatchAction] = useState('Standard transaction proposal');
   const [isPollingWatchlist, setIsPollingWatchlist] = useState(false);
 
-  // Run History state
+  // Run History & Audit Ledger state
   const [history, setHistory] = useState<GateRunResult[]>([]);
+  const [quarantined, setQuarantined] = useState<any[]>([]);
+  const [executedActions, setExecutedActions] = useState<any[]>([]);
+  const [auditTab, setAuditTab] = useState<'all' | 'quarantined' | 'executed'>('all');
+  const [releasingAddr, setReleasingAddr] = useState<string | null>(null);
 
   // Catalog state
   const [catalog, setCatalog] = useState<any[]>([]);
@@ -114,15 +119,40 @@ export default function Home() {
     }
   };
 
-  const loadHistory = async () => {
+  const loadAuditData = async () => {
     try {
-      const res = await fetch('/api/gate/history');
+      const [hRes, qRes, aRes] = await Promise.all([
+        fetch('/api/gate/history'),
+        fetch('/api/compliance/quarantine'),
+        fetch('/api/compliance/actions'),
+      ]);
+      const hData = await hRes.json();
+      const qData = await qRes.json();
+      const aData = await aRes.json();
+      if (hData.success) setHistory(hData.data || []);
+      if (qData.success) setQuarantined(qData.quarantined || []);
+      if (aData.success) setExecutedActions(aData.actions || []);
+    } catch (err) {
+      console.error('Failed to fetch audit data:', err);
+    }
+  };
+
+  const releaseQuarantine = async (targetAddr: string) => {
+    setReleasingAddr(targetAddr);
+    try {
+      const res = await fetch('/api/compliance/quarantine', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: targetAddr }),
+      });
       const data = await res.json();
       if (data.success) {
-        setHistory(data.data);
+        await loadAuditData();
       }
     } catch (err) {
-      console.error('Failed to fetch history:', err);
+      console.error('Failed to release quarantine:', err);
+    } finally {
+      setReleasingAddr(null);
     }
   };
 
@@ -144,11 +174,12 @@ export default function Home() {
   useEffect(() => {
     refreshStatus();
     loadWatchlist();
-    loadHistory();
+    loadAuditData();
     loadCatalog();
     const interval = setInterval(() => {
       refreshStatus();
       loadWatchlist();
+      loadAuditData();
     }, 20000);
     return () => clearInterval(interval);
   }, []);
@@ -179,7 +210,7 @@ export default function Home() {
       const data = await res.json();
       if (data.success) {
         setCurrentRun(data.data);
-        loadHistory();
+        loadAuditData();
         loadWatchlist();
       } else {
         setErrorMsg(data.error || 'Failed to execute gate run');
@@ -248,56 +279,24 @@ export default function Home() {
       {/* Top Protocol Header */}
       <header className="border-b border-[#181d28] bg-[#090c13]/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveView('landing')}>
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500/25 to-emerald-500/5 border border-emerald-500/35 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-              <Shield className="w-4 h-4 text-emerald-400" />
-            </div>
-            <div>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveView('landing')}>
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shadow-md shadow-emerald-500/10">
+                <Shield className="w-4 h-4 text-emerald-400" />
+              </div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold tracking-wider text-base text-white">SIGNALGATE</span>
                 <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
                   Protocol
                 </span>
               </div>
-              <p className="text-[10px] text-gray-400 tracking-tight hidden sm:block">
-                Autonomous Pre-Action Risk Firewall
-              </p>
             </div>
-          </div>
 
-          {/* Navigation links */}
-          <nav className="flex items-center gap-1 sm:gap-2">
-            {activeView === 'landing' ? (
+            {activeView !== 'landing' && (
               <>
-                <a
-                  href="#architecture"
-                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors"
-                >
-                  Architecture
-                </a>
-                <a
-                  href="#capabilities"
-                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors"
-                >
-                  Capabilities
-                </a>
-                <a
-                  href="#developers"
-                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors"
-                >
-                  Developers
-                </a>
-                <button
-                  onClick={() => setActiveView('console')}
-                  className="ml-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold tracking-wider uppercase transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>Launch Console</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center gap-1 sm:gap-2">
+                <div className="h-5 w-px bg-[#1f2638] hidden sm:block" />
+
+                <nav className="flex items-center gap-1 sm:gap-2">
                   <button
                     onClick={() => setActiveView('console')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
@@ -318,83 +317,63 @@ export default function Home() {
                     }`}
                   >
                     <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-                    <span>Live Feed</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveView('compliance')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'compliance'
-                        ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <ShieldAlert className="w-3.5 h-3.5" />
-                    <span>Compliance</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveView('catalog')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'catalog'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Cpu className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Miners ({catalog.length || 131})</span>
-                  </button>
-
-                  <div className="h-4 w-px bg-[#1f2638] mx-1 hidden lg:block" />
-
-                  <button
-                    onClick={() => setActiveView('watchlist')}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'watchlist'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Watchlist</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveView('experiments')}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'experiments'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Sliders className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Routing Lab</span>
+                    <span>Live Stream</span>
                   </button>
                   <button
                     onClick={() => setActiveView('history')}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
                       activeView === 'history'
                         ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                         : 'text-gray-400 hover:text-white'
                     }`}
                   >
-                    <Clock className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Audit Log</span>
+                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Audit Log</span>
                   </button>
-                </div>
-
-                <div className="flex items-center gap-2.5 ml-2">
-                  <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-400 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>{catalog.length || 131} Miners Online</span>
-                  </div>
-                  <button
-                    onClick={() => setActiveView('landing')}
-                    className="px-3 py-1.5 rounded-lg border border-[#232b3e] bg-[#0c101a] hover:bg-[#141b29] text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center gap-1"
-                  >
-                    &larr; Overview
-                  </button>
-                </div>
+                </nav>
               </>
             )}
-          </nav>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {activeView === 'landing' ? (
+              <>
+                <a
+                  href="#architecture"
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors hidden md:inline-block"
+                >
+                  Architecture
+                </a>
+                <a
+                  href="#capabilities"
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors hidden md:inline-block"
+                >
+                  Capabilities
+                </a>
+                <button
+                  onClick={() => setActiveView('console')}
+                  className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold tracking-wider uppercase transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Launch Console</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-400 font-mono">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="hidden sm:inline">{catalog.length || 131} Miners Online</span>
+                  <span className="sm:hidden">131 Live</span>
+                </div>
+                <button
+                  onClick={() => setActiveView('landing')}
+                  className="px-3 py-1.5 rounded-lg border border-[#232b3e] bg-[#0c101a] hover:bg-[#141b29] text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  &larr; Overview
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -1380,7 +1359,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                               }),
                             });
                             loadWatchlist();
-                            loadHistory();
+                            loadAuditData();
                           }
                         } finally {
                           setIsPollingWatchlist(false);
@@ -1457,7 +1436,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                             }),
                           });
                           loadWatchlist();
-                          loadHistory();
+                          loadAuditData();
                         }
                       } finally {
                         setIsPollingWatchlist(false);
@@ -1534,7 +1513,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
             </div>
           )}
 
-          {/* TAB 4: AUDIT LOG */}
+          {/* TAB 4: AUDIT & COMPLIANCE LEDGER */}
           {activeView === 'history' && (
             <div className="space-y-6">
               <div className="bg-[#0b0f19] border border-[#1f2638] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
@@ -1545,71 +1524,252 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                       <span>CRYPTOGRAPHIC AUDIT LEDGER</span>
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                      Append-Only Gate Audit Log
+                      Append-Only Gate Audit & Compliance Ledger
                     </h1>
                     <p className="text-sm text-gray-400 max-w-2xl leading-relaxed mt-1">
-                      Permanent, tamper-evident record of all pre-action decisions. Each entry preserves queried miners, raw consensus payloads, and payment receipts.
+                      Permanent, tamper-evident record of all pre-action decisions, quarantined threats, and downstream execution dispatches evaluated against live Telegraph miners.
                     </p>
                   </div>
 
                   <button
-                    onClick={loadHistory}
-                    className="px-4 py-2.5 rounded-xl bg-[#121724] hover:bg-[#182030] border border-[#232b3e] text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-2 transition-all cursor-pointer"
+                    onClick={loadAuditData}
+                    className="px-4 py-2.5 rounded-xl bg-[#121724] hover:bg-[#182030] border border-[#232b3e] text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-2 transition-all cursor-pointer shrink-0"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Refresh Ledger</span>
                   </button>
                 </div>
+
+                {/* Sub-Tabs / Filters */}
+                <div className="flex items-center gap-2 pt-6 border-t border-[#181f2e] mt-6">
+                  <button
+                    onClick={() => setAuditTab('all')}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                      auditTab === 'all'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/35 shadow-sm'
+                        : 'bg-[#10141f] text-gray-400 hover:text-white border border-[#1a2233]'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Evaluated Gate Runs ({history.length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setAuditTab('quarantined')}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                      auditTab === 'quarantined'
+                        ? 'bg-rose-500/15 text-rose-400 border border-rose-500/35 shadow-sm'
+                        : 'bg-[#10141f] text-gray-400 hover:text-white border border-[#1a2233]'
+                    }`}
+                  >
+                    <Lock className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Quarantined Threats ({quarantined.length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setAuditTab('executed')}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                      auditTab === 'executed'
+                        ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/35 shadow-sm'
+                        : 'bg-[#10141f] text-gray-400 hover:text-white border border-[#1a2233]'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Verified Executions ({executedActions.length})</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-3">
-                {history.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-gray-500 bg-[#0f131c] border border-[#1d2433] rounded-xl">
-                    No gate runs recorded in database yet. Run a gate check in the console to record a run.
-                  </div>
-                ) : (
-                  history.map((run) => (
-                    <div
-                      key={run.runId}
-                      className="bg-[#0f131c] border border-[#1d2433] rounded-xl p-4 font-mono text-xs hover:border-gray-700 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`font-bold px-2 py-0.5 rounded text-xs ${
-                                run.verdict === 'ALLOW'
-                                  ? 'bg-emerald-500/20 text-emerald-400'
-                                  : run.verdict === 'BLOCK'
-                                  ? 'bg-rose-500/20 text-rose-400'
-                                  : 'bg-amber-500/20 text-amber-400'
-                              }`}
-                            >
-                              {run.verdict}
-                            </span>
-                            <span className="font-bold text-white">{run.targetAddress}</span>
-                          </div>
-                          <p className="text-gray-400 text-[11px] mt-1">Action: {run.proposedActionText}</p>
-                        </div>
-
-                        <div className="text-right text-[11px] text-gray-400">
-                          <div>{new Date(run.timestamp).toLocaleString()}</div>
-                          <div>ID: {run.runId}</div>
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-gray-300 bg-[#05070a] p-2.5 rounded border border-gray-900 mb-2">
-                        {run.reason}
-                      </p>
-
-                      <div className="flex items-center justify-between text-[11px] text-gray-500 pt-2 border-t border-gray-800">
-                        <span>{run.minersQueriedCount} miners queried &bull; {run.paidRequestsCount} paid requests</span>
-                        <span>Payment Settled: {run.paymentSettled ? 'Yes' : 'No (402)'}</span>
-                      </div>
+              {/* VIEW 1: ALL GATE RUNS */}
+              {auditTab === 'all' && (
+                <div className="space-y-3">
+                  {history.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-gray-500 bg-[#0f131c] border border-[#1d2433] rounded-xl">
+                      No gate runs recorded in database yet. Run a gate check in the Risk Firewall to record an evaluation.
                     </div>
-                  ))
-                )}
-              </div>
+                  ) : (
+                    history.map((run) => (
+                      <div
+                        key={run.runId}
+                        className="bg-[#0f131c] border border-[#1d2433] rounded-xl p-5 font-mono text-xs hover:border-gray-700 transition-colors space-y-3"
+                      >
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`font-bold px-2 py-0.5 rounded text-xs ${
+                                  run.verdict === 'ALLOW'
+                                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                    : run.verdict === 'BLOCK'
+                                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                                    : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                }`}
+                              >
+                                {run.verdict}
+                              </span>
+                              <span className="font-bold text-white tracking-wide">{run.targetAddress}</span>
+                            </div>
+                            <p className="text-gray-400 text-[11px] mt-1.5 font-sans">
+                              <span className="text-gray-500 uppercase tracking-wider font-mono text-[10px]">Proposed Action: </span>
+                              <span className="text-gray-300 font-medium">{run.proposedActionText}</span>
+                            </p>
+                          </div>
+
+                          <div className="text-right text-[11px] text-gray-400">
+                            <div>{new Date(run.timestamp).toLocaleString()}</div>
+                            <div className="text-[10px] text-gray-600 font-mono">ID: {run.runId}</div>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-gray-300 bg-[#06080e] p-3 rounded-lg border border-[#161d2b] leading-relaxed">
+                          {run.reason}
+                        </div>
+
+                        {/* Collapsible Miner Receipts / Evidence */}
+                        {run.receipts && run.receipts.length > 0 && (
+                          <div className="pt-2 border-t border-[#181f2e]">
+                            <button
+                              onClick={() => toggleExpandReceipt(run.runId)}
+                              className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
+                            >
+                              <span>{expandedReceipts[run.runId] ? '▼ Hide' : '▶ View'} Miner Consensus Receipts ({run.receipts.length})</span>
+                            </button>
+
+                            {expandedReceipts[run.runId] && (
+                              <div className="mt-3 space-y-2">
+                                {run.receipts.map((r, rIdx) => (
+                                  <div
+                                    key={rIdx}
+                                    className="p-2.5 rounded bg-[#0a0e17] border border-[#1c2436] text-[11px] space-y-1"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-bold text-white">{r.minerName} <span className="text-gray-500">[{r.intent}]</span></span>
+                                      <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                                        r.status === 'SUCCESS'
+                                          ? 'bg-emerald-500/20 text-emerald-400'
+                                          : r.status === 'PAYMENT_REQUIRED'
+                                          ? 'bg-amber-500/20 text-amber-400'
+                                          : 'bg-rose-500/20 text-rose-400'
+                                      }`}>
+                                        {r.status}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-gray-400 text-[10px]">
+                                      <span>Endpoint: {r.endpoint} &bull; Latency: {r.latencyMs}ms</span>
+                                      {r.explorerRequestId && r.explorerRequestId !== 'no explorer id' && (
+                                        <span>Req ID: {r.explorerRequestId}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between text-[11px] text-gray-500 pt-2 border-t border-[#181f2e]">
+                          <span>{run.minersQueriedCount} miners queried &bull; {run.paidRequestsCount} paid requests</span>
+                          <span>Payment Settled: {run.paymentSettled ? 'Yes' : 'No (402 Micropayment Required)'}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* VIEW 2: QUARANTINED THREATS */}
+              {auditTab === 'quarantined' && (
+                <div className="space-y-3">
+                  {quarantined.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-gray-500 bg-[#0f131c] border border-[#1d2433] rounded-xl">
+                      No addresses currently in compliance quarantine. Malicious addresses flagged with a BLOCK verdict are halted and listed here.
+                    </div>
+                  ) : (
+                    quarantined.map((item) => (
+                      <div
+                        key={item.address}
+                        className="bg-[#0f131c] border border-rose-500/30 rounded-xl p-5 font-mono text-xs hover:border-rose-500/50 transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                      >
+                        <div className="space-y-1.5 max-w-3xl">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-bold text-xs border border-rose-500/40">
+                              QUARANTINED
+                            </span>
+                            <span className="font-bold text-white">{item.address}</span>
+                          </div>
+                          <p className="text-gray-300 text-xs font-sans">{item.reason}</p>
+                          <div className="flex items-center gap-4 text-[10px] text-gray-500">
+                            <span>Risk Score: <strong className="text-rose-400">{item.riskScore}</strong></span>
+                            <span>Halted: {new Date(item.haltedAt).toLocaleString()}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => releaseQuarantine(item.address)}
+                          disabled={releasingAddr === item.address}
+                          className="px-3 py-1.5 rounded-lg bg-[#151c2c] hover:bg-rose-500/20 text-gray-300 hover:text-rose-300 border border-[#222c42] hover:border-rose-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
+                        >
+                          <Unlock className="w-3.5 h-3.5" />
+                          <span>{releasingAddr === item.address ? 'Releasing...' : 'Release Quarantine'}</span>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* VIEW 3: EXECUTED ACTIONS */}
+              {auditTab === 'executed' && (
+                <div className="space-y-3">
+                  {executedActions.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-gray-500 bg-[#0f131c] border border-[#1d2433] rounded-xl">
+                      No actions dispatched to execution ledger yet. Transactions approved with verified ALLOW consensus are executed and logged here.
+                    </div>
+                  ) : (
+                    executedActions.map((act) => (
+                      <div
+                        key={act.actionId}
+                        className="bg-[#0f131c] border border-[#1d2433] rounded-xl p-5 font-mono text-xs hover:border-gray-700 transition-colors space-y-2"
+                      >
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className={`font-bold px-2 py-0.5 rounded text-xs ${
+                              act.status === 'EXECUTED'
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                            }`}>
+                              {act.status}
+                            </span>
+                            <span className="font-bold text-white">{act.targetAddress}</span>
+                          </div>
+                          <span className="text-[11px] text-gray-400">
+                            {new Date(act.executedAt).toLocaleString()}
+                          </span>
+                        </div>
+
+                        <p className="text-gray-300 text-xs font-sans">
+                          <span className="text-gray-500 uppercase tracking-wider font-mono text-[10px]">Action Type: </span>
+                          <span className="text-gray-200 font-semibold">{act.actionType}</span>
+                        </p>
+
+                        {act.payload && (
+                          <div className="p-2.5 rounded bg-[#06080e] border border-[#182030] text-[11px] text-gray-400 space-y-1">
+                            {act.payload.broadcastTx && (
+                              <div>Tx Hash: <span className="text-emerald-400">{act.payload.broadcastTx}</span></div>
+                            )}
+                            {act.payload.status && (
+                              <div>On-Chain Status: <span className="text-cyan-400">{act.payload.status}</span></div>
+                            )}
+                            {act.payload.blockNumber && (
+                              <div>Block: <span className="text-gray-300">{act.payload.blockNumber}</span></div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
 

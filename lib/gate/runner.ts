@@ -33,23 +33,36 @@ export async function executeGateRun(
   const allMiners = await fetchLiveMiners(true);
   const activeMiners = allMiners.filter((m) => m.activation_status === 'active');
 
-  // Step 2: Select miners based on what each live record advertises this request
-  // Speak Intent: match requested intents or default multi-intent risk categories
-  const targetIntents = (options.requestedIntents && options.requestedIntents.length > 0)
-    ? options.requestedIntents.map((i) => i.toUpperCase())
-    : ['FRAUD', 'RISK', 'SECURITY', 'ONCHAIN', 'TX', 'WALLET', 'BALANCE'];
-
-  const candidateMiners: { miner: Miner; params: Record<string, unknown> }[] = [];
+  // Step 2: Select miners based on advertised capabilities with domain relevance scoring
+  const scoredCandidates: { miner: Miner; params: Record<string, unknown>; score: number }[] = [];
 
   for (const m of activeMiners) {
     const intents = (m.supported_intents || []).map((i) => i.toUpperCase());
     const desc = (m.description || '').toLowerCase();
+    const name = (m.name || '').toLowerCase();
 
-    const matchesIntent = targetIntents.some((ti) =>
-      intents.some((i) => i.includes(ti)) || desc.includes(ti.toLowerCase())
-    );
+    let score = 0;
 
-    if (matchesIntent) {
+    // High priority: explicit crypto security, fraud, on-chain transaction lookups
+    if (intents.some((i) => i.includes('FRAUD') || i.includes('SECURITY') || i.includes('ONCHAIN') || i.includes('TX') || i.includes('WALLET') || i.includes('BALANCE'))) {
+      score += 20;
+    }
+    if (desc.includes('fraud') || desc.includes('drainer') || desc.includes('phishing') || desc.includes('malicious') || desc.includes('blacklist')) {
+      score += 15;
+    }
+    if (desc.includes('on-chain') || desc.includes('blockchain') || desc.includes('wallet') || desc.includes('transaction') || desc.includes('contract') || desc.includes('token')) {
+      score += 10;
+    }
+
+    // Downrank completely unrelated domains (weather, sports, ssl) for crypto gate checks
+    if (intents.some((i) => i.includes('WEATHER') || i.includes('CLIMATE') || i.includes('SSL') || i.includes('SPORTS') || i.includes('AI_TEXT'))) {
+      score -= 30;
+    }
+    if (name.includes('weather') || desc.includes('weather forecast') || desc.includes('ssl')) {
+      score -= 30;
+    }
+
+    if (score > 0) {
       const ep = m.endpoints?.[0];
       const params: Record<string, unknown> = {
         wallet: cleanAddress,
@@ -60,12 +73,13 @@ export async function executeGateRun(
         chain: '1',
       };
 
-      candidateMiners.push({ miner: m, params });
+      scoredCandidates.push({ miner: m, params, score });
     }
   }
 
-  // Pick up to 3 diverse miners from the advertised candidates
-  const selectedCandidates = candidateMiners.slice(0, 3);
+  // Sort candidates by highest relevance score and pick top 3 distinct miners
+  scoredCandidates.sort((a, b) => b.score - a.score);
+  const selectedCandidates = scoredCandidates.slice(0, 3);
 
   // Step 3: Run asks against live miners with deadline enforcement
   const minerPromises = selectedCandidates.map(async ({ miner, params }) => {
