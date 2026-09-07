@@ -1,0 +1,5 @@
+data/*.sqlite
+data/*snapshot*.json
+scratch
+fixtures
+node_modules

@@ -2,6 +2,7 @@ import { getRecentGateRuns, getWatchlist, getQuarantinedWallets } from '@/lib/db
 import { getTelegraphConfig } from '@/lib/telegraph/config';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
   const encoder = new TextEncoder();
@@ -54,32 +55,54 @@ export async function GET(request: Request) {
           });
 
           // Fetch live signals from Daemon feed every alternate tick
-          if (iteration % 2 === 0) {
+          if (iteration === 1 || iteration % 2 === 0) {
             try {
-              const res = await fetch(`${config.daemonUrl}/api/questions?limit=5`, {
+              const res = await fetch(`${config.daemonUrl}/api/questions?limit=5&sort=timestamp`, {
                 headers: { Accept: 'application/json' },
-                signal: AbortSignal.timeout(4000),
+                signal: AbortSignal.timeout(8000),
               });
               if (res.ok) {
                 const data = await res.json();
-                const questions = (data?.questions || data || []).slice(0, 5);
+                const questions = Array.isArray(data?.results)
+                  ? data.results
+                  : Array.isArray(data?.questions)
+                    ? data.questions
+                    : Array.isArray(data?.items)
+                      ? data.items
+                      : Array.isArray(data)
+                        ? data
+                        : [];
                 sendEvent('live_signals', {
-                  totalSignalsObserved: data?.total || 69000,
-                  signals: questions.map((q: any) => ({
+                  totalSignalsObserved: typeof data?.total === 'number' ? data.total : questions.length,
+                  signals: questions.slice(0, 5).map((q: any) => ({
                     id: q.id,
                     subnetId: q.routing?.subnet_id,
                     subnetName: q.routing?.subnet_name || q.routing?.miner_slug,
-                    intent: q.routing?.intent || 'GENERAL_INFERENCE',
+                    intent: q.routing?.intent || q.question?.category || 'GENERAL_INFERENCE',
                     durationMs: q.execution?.duration_ms || 0,
                     costUsd: q.execution?.cost_usd || 0.01,
                     status: q.status || 'success',
-                    summary: q.execution?.result?.answer || q.execution?.result?.summary || q.question?.text || 'Signal processed',
+                    summary:
+                      q.question?.text ||
+                      q.execution?.result?.answer ||
+                      q.execution?.result?.summary ||
+                      'Signal processed',
                     timestamp: q.created_at || new Date().toISOString(),
                   })),
                 });
+              } else {
+                sendEvent('live_signals', {
+                  totalSignalsObserved: 0,
+                  signals: [],
+                  error: `Daemon ${res.status}`,
+                });
               }
-            } catch (err) {
-              // Daemon fetch timeout or temporary network hiccup
+            } catch (err: any) {
+              sendEvent('live_signals', {
+                totalSignalsObserved: 0,
+                signals: [],
+                error: err.message || 'Daemon feed unreachable',
+              });
             }
           }
 

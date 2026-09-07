@@ -4,6 +4,7 @@ import { getPaymentWalletStatus } from '@/lib/telegraph/x402';
 import { fetchLiveMiners } from '@/lib/telegraph/catalog';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET() {
   const config = getTelegraphConfig();

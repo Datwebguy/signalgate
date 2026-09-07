@@ -87,15 +87,14 @@ async function runAcceptanceTests() {
   console.log(`- Evaluated ${allMinersForSweep.length} live miners across confidence (0.3 -> 0.9) and deadline (1500ms -> 8000ms) grid`);
   console.log('>>> ACCEPTANCE TEST 7 PASSED: Routing experiments and envelope discovery operational.');
 
-  // Acceptance Test 8: Flywheel Demand Progress Tracking
-  console.log('\n[TEST 8] Demand Flywheel: Real Requests Counter & Progress');
+  // Acceptance Test 8: Demand is recorded from real gate runs, not a volume target
+  console.log('\n[TEST 8] Demand accounting from persisted live gate runs');
   const { getFlywheelStats } = await import('../lib/db');
   const flywheelStats = getFlywheelStats();
   console.log(`- Total live asks dispatched: ${flywheelStats.totalAsksDispatched}`);
   console.log(`- Total gate runs recorded: ${flywheelStats.totalGateRuns}`);
-  console.log(`- Flywheel goal: ${flywheelStats.targetFlywheelGoal} requests`);
-  assert.ok(flywheelStats.totalAsksDispatched > 0, 'Flywheel must record real asks dispatched');
-  console.log('>>> ACCEPTANCE TEST 8 PASSED: Flywheel tracks real miner demand.');
+  assert.ok(flywheelStats.totalAsksDispatched > 0, 'Gate runs must record real asks dispatched');
+  console.log('>>> ACCEPTANCE TEST 8 PASSED: Demand is counted from live runs, not a farmed quota.');
 
   console.log('\n===============================================================');
   console.log('      ALL 8 ACCEPTANCE TESTS COMPLETED AND VERIFIED!           ');

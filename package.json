@@ -8,8 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "worker": "node scripts/worker.mjs",
-    "test:unit": "node --test tests/*.test.mjs"
+    "worker": "tsx scripts/worker.ts",
+    "worker:once": "tsx scripts/worker.ts --once",
+    "test:unit": "tsx --test tests/policy_unit.test.ts",
+    "test:acceptance": "tsx tests/acceptance_tests.ts"
   },
   "dependencies": {
     "@x402/core": "^2.11.0",
@@ -32,9 +34,10 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   }
 }

@@ -17,13 +17,8 @@ try {
   if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
   }
-  if (IS_VERCEL) {
-    const seedPath = path.resolve(process.cwd(), 'data', 'signalgate.sqlite');
-    const targetPath = path.join(DB_DIR, 'signalgate.sqlite');
-    if (fs.existsSync(seedPath) && !fs.existsSync(targetPath)) {
-      fs.copyFileSync(seedPath, targetPath);
-    }
-  }
+  // Never seed demo sqlite. Vercel /tmp starts empty so the ledger only
+  // contains runs from this instance.
 } catch (err) {
   console.warn('Warning creating DB directory:', err);
 }
@@ -320,13 +315,25 @@ export function getFlywheelStats(): FlywheelStats {
   const addrStmt = db.prepare(`SELECT COUNT(DISTINCT address) as unique_addrs FROM watchlist`);
   const addrRes = (addrStmt.get() as any) || {};
 
+  const receiptRows = db.prepare(`SELECT receipts_json FROM gate_runs ORDER BY created_at DESC LIMIT 200`).all() as any[];
+  const minerIds = new Set<string>();
+  for (const row of receiptRows) {
+    try {
+      const receipts = JSON.parse(row.receipts_json || '[]');
+      for (const receipt of receipts) {
+        if (receipt?.minerId) minerIds.add(String(receipt.minerId));
+      }
+    } catch {
+      // ignore malformed rows
+    }
+  }
+
   return {
     totalAsksDispatched: Number(runsRes.total_asks || 0),
     totalPaidRequests: Number(runsRes.total_paid || 0),
     totalGateRuns: Number(runsRes.total_runs || 0),
     uniqueAddressesMonitored: Number(addrRes.unique_addrs || 0),
-    activeMinersEngaged: Math.min(131, Math.max(4, Number(runsRes.total_asks || 0))),
-    targetFlywheelGoal: 100,
+    activeMinersEngaged: minerIds.size,
   };
 }
 

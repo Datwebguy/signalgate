@@ -372,7 +372,7 @@
     "min_price_usdc": 10000,
     "yaml_url": "https://degenlensv1.up.railway.app/miner.yaml",
     "registered_at": "2026-09-01T19:23:32Z",
-    "total_requests_served": 3023,
+    "total_requests_served": 3049,
     "scored": true,
     "last_scored_epoch": 314,
     "last_scored_at": "2026-09-07T09:16:36Z",
@@ -397,1535 +397,6 @@
         "rank": 11,
         "score": 0,
         "scored_at": "2026-09-07T09:16:36.550787Z"
-      }
-    ]
-  },
-  {
-    "id": "4433",
-    "slug": "livecert",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "LiveCert Operational Signals",
-    "description": "Deterministic operational signals. /ssl-check performs a live TLS handshake against a domain and reports the certificate that host is actually serving right now: valid, expired, self-signed, untrusted, or issued for a different hostname, with issuer, validity window and days remaining. Unlike certificate-transparency lookups, which report what was issued, this reports what is deployed — the two disagree whenever a host still serves an old certificate. /storm-alert reports severe-weather disruption risk for a named location over the next 48 hours, graded on Beaufort gust thresholds and thunderstorm forecasts, for logistics and risk agents that need to know about storms rather than current conditions. /weather-forecast reports future conditions for a location over a stated window: the expected condition in plain words, temperature range, total precipitation and peak wind. All three answers are deterministic and independently checkable.",
-    "endpoints": [
-      {
-        "path": "/ssl-check",
-        "method": "GET",
-        "description": "Live TLS certificate check for one domain. Accepts a bare hostname, a full URL, or host:port."
-      },
-      {
-        "path": "/storm-alert",
-        "method": "GET",
-        "description": "Severe-weather risk for a location over the next 48 hours. Accepts a place name or \"lat,lon\"."
-      },
-      {
-        "path": "/papers",
-        "method": "GET",
-        "description": "Finds peer-reviewed papers on a topic, optionally within a date range, via OpenAlex. Returns title, authors, year and citation count for each."
-      },
-      {
-        "path": "/translate",
-        "method": "GET",
-        "description": "Translates quoted text into a named target language. Returns the translation itself, in the target script."
-      },
-      {
-        "path": "/ip-geolocate",
-        "method": "GET",
-        "description": "Live IP geolocation. Accepts an IPv4 or IPv6 address, or a whole question containing one."
-      },
-      {
-        "path": "/weather-forecast",
-        "method": "GET",
-        "description": "Current and future conditions for a location. hours=0 reports the present hour; any other value gives a window of up to 168h, and the default with no hours parameter is 24h. Accepts a place name or \"lat,lon\"."
-      },
-      {
-        "path": "/extract",
-        "method": "GET",
-        "description": "Structured extraction from text supplied inline in the question. Reads quantities and units, contact details, named entities, action items, dates and events, or bare numeric values, and answers with the extracted fields themselves. The text is carried in the question, so nothing is fetched and the answer is deterministic and checkable against the input."
-      },
-      {
-        "path": "/headlines",
-        "method": "GET",
-        "description": "Current news headlines for a topic and optional region, read live from Google News at request time and returned as a numbered list with each source named. Honours a requested count such as \"top 5\". Headlines rotate, so the answer states the date it was read."
-      },
-      {
-        "path": "/wallet-balance",
-        "method": "GET",
-        "description": "Native-coin balance of an EVM address, read with eth_getBalance at the latest block from public JSON-RPC on the chain the question names — Ethereum, Base, Arbitrum, Optimism or Polygon. A zero balance is reported as zero; an RPC that does not answer is reported as unavailable rather than as zero. Token balances such as USDT are not included, and the answer says so when one was asked about."
-      },
-      {
-        "path": "/fact-check",
-        "method": "GET",
-        "description": "A specific claim, looked up against a citable encyclopaedic reference and reported with the article named and quoted. Reports an explicit refutation when the source states one, and otherwise says plainly that the source does not settle the claim. It does not adjudicate contested claims and never asserts that a claim is true on the strength of a topical match."
-      },
-      {
-        "path": "/telegraph",
-        "method": "GET",
-        "description": "Questions about Telegraph itself — miner registration and the YAML registry, the canonical intent set, how answers are scored, the Explorer and leaderboard, and the hackathon. Live figures such as the number of registered miners or the miners serving a named intent are read from the protocol at request time rather than recalled. Questions outside those areas are answered as not covered, with a pointer to the protocol documentation, rather than guessed."
-      },
-      {
-        "path": "/ai-detect",
-        "method": "GET",
-        "description": "Statistical authorship analysis of a supplied passage. Measures sentence-length burstiness, type-token ratio, repeated word pairs and formulaic connectives, and reports what they indicate with a calibrated confidence that is capped at 0.6. Authorship detection is not reliable enough to treat as proof and the answer says so; when no passage long enough to analyse is supplied it says that instead of guessing."
-      }
-    ],
-    "input_schema": {
-      "description": "Telegraph's engine fills the parameters a miner declares here and does not pass the rest of the question, so anything not declared is invisible. The query field is declared first because it carries the wording the structured fields cannot — an explicit start date, a time window, a wind threshold.",
-      "properties": {
-        "days": {
-          "description": "Forecast span in days, converted to hours.",
-          "maximum": 16,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "domain": {
-          "description": "/ssl-check. Hostname to check. Accepts \"example.com\", \"https://example.com/path\", or \"example.com:8443\".",
-          "examples": [
-            "example.com",
-            "expired.badssl.com"
-          ],
-          "type": "string"
-        },
-        "forecast_days": {
-          "description": "Alias for days.",
-          "type": "integer"
-        },
-        "forecast_hours": {
-          "description": "Alias for hours.",
-          "type": "integer"
-        },
-        "hours": {
-          "description": "/storm-alert and /weather-forecast. Forecast window in hours. Also read from the question itself, e.g. \"over the next 44 hours\".",
-          "maximum": 384,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "ip": {
-          "description": "/ip-geolocate. IPv4 or IPv6 address.",
-          "examples": [
-            "8.8.8.8"
-          ],
-          "type": "string"
-        },
-        "lat": {
-          "description": "Alias for latitude.",
-          "type": "number"
-        },
-        "latitude": {
-          "description": "/storm-alert and /weather-forecast. Use with longitude when the question names coordinates rather than a place.",
-          "maximum": 90,
-          "minimum": -90,
-          "type": "number"
-        },
-        "location": {
-          "description": "/storm-alert and /weather-forecast. Place name, e.g. \"Chennai\" or \"Tokyo, Japan\".",
-          "examples": [
-            "Chennai",
-            "Tokyo, Japan"
-          ],
-          "type": "string"
-        },
-        "lon": {
-          "description": "Alias for longitude.",
-          "type": "number"
-        },
-        "longitude": {
-          "maximum": 180,
-          "minimum": -180,
-          "type": "number"
-        },
-        "q": {
-          "description": "Alias for query.",
-          "type": "string"
-        },
-        "query": {
-          "description": "The user's original question, verbatim. Preferred over the structured fields: it carries detail they cannot, such as \"starting next Monday\", \"in 44 hours\", or \"flag winds above 25 knots\".",
-          "examples": [
-            "What is the storm risk at latitude 12.97, longitude 77.59 in 44 hours?",
-            "Can you analyze the TLS certificate chain and hostname match for api.github.com?"
-          ],
-          "type": "string"
-        },
-        "source_language": {
-          "description": "/translate. The language of the source text, when stated.",
-          "examples": [
-            "English"
-          ],
-          "type": "string"
-        },
-        "target_language": {
-          "description": "/translate. The language to translate into, by name or ISO 639-1 code.",
-          "examples": [
-            "Spanish",
-            "fr"
-          ],
-          "type": "string"
-        },
-        "text": {
-          "description": "/translate and /ai-detect. The text to translate, or the passage whose authorship is to be analysed, with or without quotes. Registration 260 declared no translation-shaped parameter and both scored epochs arrived with none filled — the engine fills only parameters a miner declares, so this field is what makes translation questions reach us.",
-          "examples": [
-            "The weather is beautiful today."
-          ],
-          "type": "string"
-        },
-        "topic": {
-          "description": "/papers. Research subject to search for, e.g. \"zero knowledge proofs\".",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "address": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "asn": {
-          "description": "Autonomous system number of the announcing network.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "balance_eth": {
-          "description": "Native-coin balance. Null when the RPC did not answer, which is not the same as zero.",
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "chain": {
-          "description": "ethereum, base, arbitrum, optimism or polygon.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "chain_complete": {
-          "description": "Whether intermediates were sent, not just the leaf.",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "chain_length": {
-          "description": "Certificates the server presented, leaf included. /ssl-check only.",
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "checked_at": {
-          "type": "string"
-        },
-        "city": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "claim": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "confidence": {
-          "type": "number"
-        },
-        "count": {
-          "description": "Number of papers or headlines returned.",
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "country": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "country_code": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "days_remaining": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "domain": {
-          "type": "string"
-        },
-        "end_time": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "evidence": {
-          "description": "The passage the verdict was read from.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "expired": {
-          "type": "boolean"
-        },
-        "extracted": {
-          "description": "The fields the question asked for. Keys vary with the request — emails, phones, urls, quantities, dates, entities, action items.",
-          "type": [
-            "object",
-            "null"
-          ]
-        },
-        "formulaic_markers": {
-          "items": {
-            "type": "string"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
-        },
-        "from_date": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "headlines": {
-          "items": {
-            "properties": {
-              "published": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "source": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "title": {
-                "type": "string"
-              }
-            },
-            "type": "object"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
-        },
-        "hostname_match": {
-          "type": "boolean"
-        },
-        "hourly_count": {
-          "description": "Number of hourly values returned.",
-          "type": "integer"
-        },
-        "hourly_max_precipitation_mm": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "hourly_min_precipitation_mm": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "ip": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "issuer": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "latitude": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "location": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "longitude": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "max_precipitation_mm": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "max_wind_gust_kmh": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "max_wind_speed_kmh": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "mean_sentence_words": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "organisation": {
-          "description": "Network operator the address is registered to.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "papers": {
-          "description": "Each entry carries title, authors, year, citations, venue and doi.",
-          "items": {
-            "properties": {
-              "authors": {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              "citations": {
-                "type": [
-                  "integer",
-                  "null"
-                ]
-              },
-              "doi": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "title": {
-                "type": "string"
-              },
-              "venue": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "year": {
-                "type": [
-                  "integer",
-                  "null"
-                ]
-              }
-            },
-            "type": "object"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
-        },
-        "peak_at": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "precipitation_hours": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "precipitation_probability_max_pct": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "reason": {
-          "type": "string"
-        },
-        "region": {
-          "description": "Subdivision for an IP; requested news region for /headlines.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "repeated_bigrams": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "risk_score": {
-          "description": "Storm risk from 0 (none) to 1 (severe). /storm-alert only.",
-          "maximum": 1,
-          "minimum": 0,
-          "type": "number"
-        },
-        "sentence_length_stdev": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "sentences": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "source": {
-          "description": "The reference consulted, named so a reader can weigh it.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "source_url": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "span_days": {
-          "description": "Forecast span in days when the question asked in days.",
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "start_time": {
-          "description": "First hour of the returned series, UTC. /weather-forecast honours an explicit start named in the question.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "storm_expected": {
-          "type": "boolean"
-        },
-        "subject": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "subject_alt_names": {
-          "description": "Subject Alternative Names on the leaf certificate.",
-          "items": {
-            "type": "string"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
-        },
-        "symbol": {
-          "description": "Native coin of the chain — POL on polygon, ETH elsewhere.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "temp_max_c": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "temp_min_c": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "threshold_exceeded": {
-          "description": "Whether a wind threshold named in the question was crossed.",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "threshold_hours": {
-          "description": "The UTC hours at which it was crossed.",
-          "items": {
-            "type": "string"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
-        },
-        "thunderstorm": {
-          "type": "boolean"
-        },
-        "time_mode": {
-          "description": "\"point\" when the question asked about one moment (\"in 44 hours\", \"right now\"); \"window\" when it asked about a span (\"over the next 44 hours\").",
-          "enum": [
-            "point",
-            "window"
-          ],
-          "type": "string"
-        },
-        "timezone": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "tls_protocol": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "to_date": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "topic": {
-          "description": "Subject actually searched for, after parsing the question.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "total_precipitation_mm": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "translation": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "trusted": {
-          "type": "boolean"
-        },
-        "type_token_ratio": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "unreachable_reason": {
-          "description": "Why the host could not be reached, when it could not be.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "valid": {
-          "type": "boolean"
-        },
-        "valid_at": {
-          "description": "For a point answer, the UTC hour the values describe. Null for a window.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "valid_from": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "valid_to": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "verdict": {
-          "description": "The answer's label, and its vocabulary is per endpoint. /ssl-check returns a certificate state (valid, expired, not_yet_valid, hostname_mismatch, self_signed, untrusted, unreachable); /storm-alert a storm-risk grade (none, low, moderate, high, severe); /weather-forecast a condition (clear, mostly clear, cloudy, fog, drizzle, rain, heavy rain, snow, thunderstorms); /translate \"translated\"; /papers \"papers\"; /ai-detect likely_human, likely_ai or inconclusive; and /ip-geolocate the resolved place itself, or the class of a special-use range (private, reserved, loopback, link_local, shared, multicast, broadcast). Any endpoint returns \"unknown\" when it could not answer. A closed enum was declared here previously and four endpoints did not conform to it, /ip-geolocate least of all because a place name cannot be enumerated.",
-          "type": "string"
-        },
-        "wind_direction": {
-          "description": "Compass direction of the peak wind.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "window_hours": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "words": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "verdict",
-      "reason_field": "reason"
-    },
-    "supported_intents": [
-      "SSL_VERIFICATION",
-      "STORM_ALERT",
-      "WEATHER_FORECAST",
-      "IP_GEOLOCATION",
-      "LANGUAGE_TRANSLATION",
-      "ACADEMIC_SEARCH",
-      "AI_TEXT_DETECTION",
-      "CONTENT_EXTRACTION",
-      "NEWS_HEADLINES",
-      "WALLET_BALANCE_CHECK",
-      "WEATHER_CHECK",
-      "FACT_CHECK",
-      "TELEGRAPH_KNOWLEDGE"
-    ],
-    "docs": {
-      "repository": "https://github.com/Harshyadav442277/miner"
-    },
-    "base_url": "https://miner-wine.vercel.app",
-    "wallet_address": "0xdad201ef02f5c1fbb8f9e931ae9b7c1bf493a39e",
-    "fee_address": "0xdad201ef02f5c1fbb8f9e931ae9b7c1bf493a39e",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://raw.githubusercontent.com/Harshyadav442277/miner/6b0d176048313cc6fec2788d18cb9ae24f3e2adc/track1-miner/miner.yaml",
-    "registered_at": "2026-08-31T21:43:35Z",
-    "total_requests_served": 832,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:16Z",
-    "scores": [
-      {
-        "intent_id": "ACADEMIC_SEARCH",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.016767038,
-        "scored_at": "2026-09-07T09:14:55.968181Z"
-      },
-      {
-        "intent_id": "CONTENT_EXTRACTION",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 1,
-        "scored_at": "2026-09-07T09:17:03.348768Z"
-      },
-      {
-        "intent_id": "LANGUAGE_TRANSLATION",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 1.3687619e-10,
-        "scored_at": "2026-09-07T09:07:31.554302Z"
-      },
-      {
-        "intent_id": "NEWS_HEADLINES",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.009272916,
-        "scored_at": "2026-09-07T09:10:13.869179Z"
-      },
-      {
-        "intent_id": "AI_TEXT_DETECTION",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 2.3622046e-10,
-        "scored_at": "2026-09-07T09:10:59.810933Z"
-      },
-      {
-        "intent_id": "TELEGRAPH_KNOWLEDGE",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 1.1734614e-11,
-        "scored_at": "2026-09-07T09:16:25.162164Z"
-      },
-      {
-        "intent_id": "FACT_CHECK",
-        "epoch_id": 314,
-        "rank": 3,
-        "score": 3.5300962e-9,
-        "scored_at": "2026-09-07T09:13:22.484686Z"
-      },
-      {
-        "intent_id": "IP_GEOLOCATION",
-        "epoch_id": 314,
-        "rank": 3,
-        "score": 0.99738914,
-        "scored_at": "2026-09-07T09:14:46.816635Z"
-      },
-      {
-        "intent_id": "SSL_VERIFICATION",
-        "epoch_id": 314,
-        "rank": 3,
-        "score": 0.008542038,
-        "scored_at": "2026-09-07T09:07:21.271351Z"
-      },
-      {
-        "intent_id": "WALLET_BALANCE_CHECK",
-        "epoch_id": 314,
-        "rank": 3,
-        "score": 0.9999993,
-        "scored_at": "2026-09-07T09:15:11.029514Z"
-      },
-      {
-        "intent_id": "STORM_ALERT",
-        "epoch_id": 314,
-        "rank": 4,
-        "score": 0.00869535,
-        "scored_at": "2026-09-07T09:17:16.543028Z"
-      },
-      {
-        "intent_id": "WEATHER_CHECK",
-        "epoch_id": 314,
-        "rank": 5,
-        "score": 0.01575727,
-        "scored_at": "2026-09-07T09:09:37.890409Z"
-      },
-      {
-        "intent_id": "WEATHER_FORECAST",
-        "epoch_id": 314,
-        "rank": 8,
-        "score": 0.00043070616,
-        "scored_at": "2026-09-07T09:08:46.72289Z"
-      }
-    ]
-  },
-  {
-    "id": "7306",
-    "slug": "skywire-storm-alert",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "SkyWire Storm Alert",
-    "description": "Active or upcoming severe weather for a named place, derived live from the open-meteo hourly forecast. Answers the STORM_ALERT intent: it flags thunderstorms, high wind gusts, heavy rain or snow and temperature extremes over the next window (default 24 hours, up to 48), grades each against advisory and warning thresholds that line up with how national weather services phrase things, and when nothing is severe it says so plainly. No API key, nothing cached that can go stale.\n",
-    "endpoints": [
-      {
-        "path": "/storm",
-        "method": "GET",
-        "description": "Severe-weather outlook for one place, location as a query parameter (?location=Miami&hours=24). Also accepts a whole question in ?query=.\n"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "hours": {
-          "description": "Look-ahead window in hours, 1 to 48, default 24.",
-          "type": "integer"
-        },
-        "location": {
-          "description": "Place name to assess for severe weather, for example Miami or Manila.",
-          "type": "string"
-        },
-        "question": {
-          "description": "The full natural-language question, verbatim, for example \"Is a storm expected in Miami in the next 48 hours?\". The miner reads the place and the window from it, so passing the whole question works as well as the structured fields.\n",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "breach": {
-          "description": "True when any hazard reaches at least advisory level in the window.",
-          "type": "boolean"
-        },
-        "confidence": {
-          "description": "0.95 for a direct open-meteo read.",
-          "type": "number"
-        },
-        "country": {
-          "description": "Country of the resolved place.",
-          "type": "string"
-        },
-        "hazards": {
-          "description": "Per-hazard type, level, detail and timing.",
-          "type": "array"
-        },
-        "level": {
-          "description": "none, advisory or warning, the most severe hazard in the window.",
-          "type": "string"
-        },
-        "location": {
-          "description": "Canonical place name the alert refers to.",
-          "type": "string"
-        },
-        "peak_gust_kmh": {
-          "description": "Highest wind gust in the window, km/h.",
-          "type": "number"
-        },
-        "risk": {
-          "description": "Confidence in the assessment, 0 to 1.",
-          "type": "number"
-        },
-        "summary": {
-          "description": "One sentence stating whether severe weather is expected and, if so, what and when.",
-          "type": "string"
-        },
-        "thunderstorms": {
-          "description": "Whether thunderstorms appear anywhere in the window.",
-          "type": "boolean"
-        },
-        "total_precip_mm": {
-          "description": "Total precipitation expected over the window, mm.",
-          "type": "number"
-        },
-        "total_snowfall_cm": {
-          "description": "Total snowfall expected over the window, cm.",
-          "type": "number"
-        },
-        "window_hours": {
-          "description": "Number of hours looked ahead.",
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "risk",
-      "label_field": "summary",
-      "reason_field": "summary"
-    },
-    "supported_intents": [
-      "STORM_ALERT"
-    ],
-    "docs": {
-      "documentation": "https://telegraph-sky.margyn.workers.dev/",
-      "repository": "https://github.com/zkasuran/telegraph-skywire-miner"
-    },
-    "limitations": [
-      {
-        "code": "MAX_PARAM_VALUE",
-        "message": "location is a place name such as Miami, Manila or Tokyo. hours is 1 to 48 and defaults to 24. A whole question is accepted too.",
-        "param": "location",
-        "property": "length",
-        "value_num": 80,
-        "operator": "lte"
-      }
-    ],
-    "base_url": "https://telegraph-sky.margyn.workers.dev",
-    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/Qmb2tWGYXzJzMvT1aJXQmtHYxWM9cNpPwc1MmTSczGv3yu",
-    "registered_at": "2026-08-30T18:05:40Z",
-    "total_requests_served": 827,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:16Z",
-    "scores": [
-      {
-        "intent_id": "STORM_ALERT",
-        "epoch_id": 314,
-        "rank": 3,
-        "score": 0.009334127,
-        "scored_at": "2026-09-07T09:17:16.543028Z"
-      }
-    ]
-  },
-  {
-    "id": "302",
-    "slug": "chainsight-oracle",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "ChainSight — On-Chain Intelligence Hub",
-    "description": "A single authoritative oracle for real-time on-chain and market intelligence: crypto prices, market cap and volume, DeFi TVL, fiat exchange rates, network gas prices, wallet balances and transaction lookups across Ethereum and Base. Every answer is number-first, canonical and independently reproducible — sourced from professional public feeds (CoinGecko, DefiLlama, public RPC, exchange-rate feeds) and recorded on Telegraph as a hashed, verifiable signal. Purpose-built for trading, risk and analytics agents that need one reliable endpoint for the full on-chain data surface. Accepts explicit params or a plain-language question and returns the exact figure with a concise statement.\n",
-    "endpoints": [
-      {
-        "path": "/price",
-        "method": "GET",
-        "description": "Current USD price of a crypto asset (CRYPTO_PRICE)."
-      },
-      {
-        "path": "/financial",
-        "method": "GET",
-        "description": "Price, market cap, 24h volume and change (FINANCIAL_DATA)."
-      },
-      {
-        "path": "/tvl",
-        "method": "GET",
-        "description": "Total value locked of a DeFi protocol or chain (TVL_LOOKUP)."
-      },
-      {
-        "path": "/fx",
-        "method": "GET",
-        "description": "Fiat exchange rate between two currencies (CURRENCY_EXCHANGE)."
-      },
-      {
-        "path": "/gas",
-        "method": "GET",
-        "description": "Current network gas price in gwei (GAS_PRICE)."
-      },
-      {
-        "path": "/balance",
-        "method": "GET",
-        "description": "Native ETH balance of a wallet address (WALLET_BALANCE_CHECK)."
-      },
-      {
-        "path": "/tx",
-        "method": "GET",
-        "description": "Details of an on-chain transaction by hash (ONCHAIN_TX_LOOKUP)."
-      },
-      {
-        "path": "/holders",
-        "method": "GET",
-        "description": "Number of holders of a token contract (TOKEN_HOLDER_COUNT)."
-      },
-      {
-        "path": "/stock",
-        "method": "GET",
-        "description": "Current price of a stock ticker (STOCK_PRICE)."
-      },
-      {
-        "path": "/fraud",
-        "method": "GET",
-        "description": "Malicious-activity risk assessment of an address (FRAUD_DETECTION)."
-      },
-      {
-        "path": "/urlscan",
-        "method": "GET",
-        "description": "Phishing/scam assessment of a URL (URL_SCAN)."
-      },
-      {
-        "path": "/wforecast",
-        "method": "GET",
-        "description": "Multi-day weather forecast for a location (WEATHER_FORECAST)."
-      },
-      {
-        "path": "/wcheck",
-        "method": "GET",
-        "description": "Current weather conditions for a location (WEATHER_CHECK)."
-      },
-      {
-        "path": "/wstorm",
-        "method": "GET",
-        "description": "Storm risk (wind, gusts, precipitation) at coordinates (STORM_ALERT)."
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "address": {
-          "description": "0x wallet address (40 hex).",
-          "type": "string"
-        },
-        "base": {
-          "description": "Base fiat currency code, e.g. EUR.",
-          "type": "string"
-        },
-        "chain": {
-          "description": "Chain name: ethereum or base.",
-          "type": "string"
-        },
-        "hash": {
-          "description": "0x transaction hash (64 hex).",
-          "type": "string"
-        },
-        "intent": {
-          "description": "Optional intent hint.",
-          "type": "string"
-        },
-        "protocol": {
-          "description": "DeFi protocol slug, e.g. aave, uniswap.",
-          "type": "string"
-        },
-        "query": {
-          "description": "Natural-language question if params are not supplied.",
-          "type": "string"
-        },
-        "quote": {
-          "description": "Quote fiat currency code, e.g. USD.",
-          "type": "string"
-        },
-        "symbol": {
-          "description": "Asset ticker or name, e.g. BTC, ethereum.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "balance_eth": {
-          "type": "number"
-        },
-        "gas_price_gwei": {
-          "type": "number"
-        },
-        "market_cap_usd": {
-          "type": "number"
-        },
-        "price_usd": {
-          "type": "number"
-        },
-        "rate": {
-          "type": "number"
-        },
-        "signal": {
-          "description": "Concise canonical answer (number-first).",
-          "type": "string"
-        },
-        "source": {
-          "type": "string"
-        },
-        "tvl_usd": {
-          "type": "number"
-        },
-        "value_eth": {
-          "type": "number"
-        },
-        "volume_24h_usd": {
-          "type": "number"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "label_field": "signal",
-      "reason_field": "source"
-    },
-    "supported_intents": [
-      "CRYPTO_PRICE",
-      "FINANCIAL_DATA",
-      "TVL_LOOKUP",
-      "CURRENCY_EXCHANGE",
-      "GAS_PRICE",
-      "WALLET_BALANCE_CHECK",
-      "ONCHAIN_TX_LOOKUP",
-      "TOKEN_HOLDER_COUNT",
-      "STOCK_PRICE",
-      "FRAUD_DETECTION",
-      "URL_SCAN",
-      "WEATHER_FORECAST",
-      "WEATHER_CHECK",
-      "STORM_ALERT"
-    ],
-    "base_url": "https://hub.shadrakbessanh.me",
-    "wallet_address": "0xd4c73e9986c0b48eac22db24b5eef0c8ecef8ef9",
-    "fee_address": "0xd4c73e9986c0b48eac22db24b5eef0c8ecef8ef9",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://hub.shadrakbessanh.me/miner.yaml",
-    "registered_at": "2026-08-29T10:55:42Z",
-    "total_requests_served": 826,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:58Z",
-    "scores": [
-      {
-        "intent_id": "FRAUD_DETECTION",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 1,
-        "scored_at": "2026-09-07T09:07:13.81189Z"
-      },
-      {
-        "intent_id": "GAS_PRICE",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 2.3914103e-11,
-        "scored_at": "2026-09-07T09:13:42.137615Z"
-      },
-      {
-        "intent_id": "URL_SCAN",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.96155113,
-        "scored_at": "2026-09-07T09:17:53.477982Z"
-      },
-      {
-        "intent_id": "WEATHER_CHECK",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.27740267,
-        "scored_at": "2026-09-07T09:09:37.890409Z"
-      },
-      {
-        "intent_id": "ONCHAIN_TX_LOOKUP",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.011474354,
-        "scored_at": "2026-09-07T09:16:36.550787Z"
-      },
-      {
-        "intent_id": "STOCK_PRICE",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 1.0887759e-14,
-        "scored_at": "2026-09-07T09:17:25.599382Z"
-      },
-      {
-        "intent_id": "STORM_ALERT",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.011138782,
-        "scored_at": "2026-09-07T09:17:16.543028Z"
-      },
-      {
-        "intent_id": "TOKEN_HOLDER_COUNT",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 5.0331766e-12,
-        "scored_at": "2026-09-07T09:14:00.742368Z"
-      },
-      {
-        "intent_id": "TVL_LOOKUP",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.027550608,
-        "scored_at": "2026-09-07T09:17:58.251541Z"
-      },
-      {
-        "intent_id": "WALLET_BALANCE_CHECK",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.9999996,
-        "scored_at": "2026-09-07T09:15:11.029514Z"
-      },
-      {
-        "intent_id": "CURRENCY_EXCHANGE",
-        "epoch_id": 314,
-        "rank": 4,
-        "score": 8.129208e-8,
-        "scored_at": "2026-09-07T09:10:08.150439Z"
-      },
-      {
-        "intent_id": "FINANCIAL_DATA",
-        "epoch_id": 314,
-        "rank": 4,
-        "score": 2.0159153e-25,
-        "scored_at": "2026-09-07T09:10:23.8694Z"
-      },
-      {
-        "intent_id": "CRYPTO_PRICE",
-        "epoch_id": 314,
-        "rank": 7,
-        "score": 2.693652e-39,
-        "scored_at": "2026-09-07T09:10:53.809496Z"
-      },
-      {
-        "intent_id": "WEATHER_FORECAST",
-        "epoch_id": 314,
-        "rank": 7,
-        "score": 0.0004333169,
-        "scored_at": "2026-09-07T09:08:46.72289Z"
-      }
-    ]
-  },
-  {
-    "id": "20260821",
-    "slug": "amanat-weather-risk",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "Amanat Weather Risk",
-    "description": "Parametric weather-risk signals for autonomous systems. Every answer carries a plain-language summary and the scalars behind it — temperature, wind, gusts, precipitation and a storm-risk score — so the same response can be graded by a Telegraph scoring module and acted on by a smart contract through an ERC-8183 job. Backed by Open-Meteo; no API key, no rate-limit surprises.\n",
-    "endpoints": [
-      {
-        "path": "/forecast",
-        "method": "POST",
-        "description": "Weather and storm-risk forecast for a place, at an hour offset. Takes lat/lon or a plain-language question."
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "hours": {
-          "description": "Hours ahead of now. 0 is the current hour. Read from the question when absent.",
-          "maximum": 168,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "lat": {
-          "description": "Latitude in decimal degrees. Requires lon.",
-          "maximum": 90,
-          "minimum": -90,
-          "type": "number"
-        },
-        "lon": {
-          "description": "Longitude in decimal degrees. Requires lat.",
-          "maximum": 180,
-          "minimum": -180,
-          "type": "number"
-        },
-        "question": {
-          "description": "A plain-language weather question naming a place, e.g. 'Will Riyadh exceed 40 degrees in the next 24 hours?'. Used when lat and lon are absent.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "attestation": {
-          "canonical": null,
-          "description": "Ed25519 signature over the settle fields - algorithm",
-          "key_persistent. Verify with Node crypto.verify; the key is also at /.well-known/amanat.json.": null,
-          "public_key": null,
-          "sha256": null,
-          "signature": null,
-          "signed_fields": null,
-          "type": "object"
-        },
-        "attribution": {
-          "GDACS.": null,
-          "description": "Data sources and licence - Open-Meteo CC BY 4.0",
-          "type": "object"
-        },
-        "breach": {
-          "description": "True when risk is at or above the 0.75 payout threshold.",
-          "type": "boolean"
-        },
-        "cloud_pct": {
-          "description": "Cloud cover in percent for that hour.",
-          "type": "number"
-        },
-        "condition": {
-          "description": "WMO present-weather condition for that hour",
-          "e.g. Overcast or Thunderstorm. Null when the code is unrecognised.": null,
-          "type": "string"
-        },
-        "cyclone_alert": {
-          "Orange or Red.": null,
-          "description": "GDACS alert level for that cyclone - Green",
-          "type": "string"
-        },
-        "cyclone_km": {
-          "0 when none within 500 km. The on-chain form of cyclone_km_now.": null,
-          "description": "Distance in km to the nearest active cyclone now",
-          "type": "integer"
-        },
-        "cyclone_km_now": {
-          "description": "Distance in km to that cyclone's current position. Its position at the forecast hour is not published",
-          "so this is where it is now.": null,
-          "type": "integer"
-        },
-        "cyclone_max_wind_kmh": {
-          "description": "That cyclone's maximum sustained wind in km/h.",
-          "type": "integer"
-        },
-        "cyclone_name": {
-          "description": "Name of the nearest active tropical cyclone within 500 km",
-          "from GDACS. Null when none.": null,
-          "type": "string"
-        },
-        "days": {
-          "condition": null,
-          "description": "Today and tomorrow as a report prints them - date",
-          "high_c": null,
-          "label": null,
-          "low_c": null,
-          "precip_prob_pct": null,
-          "type": "array",
-          "wind_max_kmh.": null
-        },
-        "dew_point_c": {
-          "description": "Dew point in degrees Celsius for that hour.",
-          "type": "number"
-        },
-        "feels_like_c": {
-          "description": "Apparent temperature in degrees Celsius for that hour.",
-          "type": "number"
-        },
-        "gust_kmh": {
-          "description": "Wind gust speed in km/h.",
-          "type": "number"
-        },
-        "humidity_pct": {
-          "description": "Relative humidity in percent for that hour.",
-          "type": "number"
-        },
-        "place": {
-          "as resolved from the question. Null when coordinates were given.": null,
-          "description": "The place the reading is for",
-          "type": "string"
-        },
-        "precip_mm": {
-          "description": "Precipitation in mm for the hour.",
-          "type": "number"
-        },
-        "precip_prob_pct": {
-          "description": "Probability of precipitation in percent for that hour.",
-          "type": "number"
-        },
-        "risk": {
-          "description": "Storm risk between 0 and 1. The worst of wind",
-          "gusts": null,
-          "precipitation": null,
-          "type": "number",
-          "wave height and cyclone proximity.": null
-        },
-        "risk_band": {
-          "breach_probability. Null when the ensemble could not be read.": null,
-          "description": "The same risk across ECMWF ensemble members at that hour - model",
-          "max": null,
-          "members": null,
-          "p10": null,
-          "p50": null,
-          "p90": null,
-          "type": "object"
-        },
-        "sea_level_m": {
-          "description": "Sea level above mean sea level in metres for that hour",
-          "from the Open-Meteo marine model. Reported": null,
-          "not scored. Null over land.": null,
-          "tide and surge together": null,
-          "type": "number"
-        },
-        "source": {
-          "type": "string"
-        },
-        "summary": {
-          "and the storm risk.": null,
-          "description": "Plain-language forecast. Opens by restating the question",
-          "gusts": null,
-          "precipitation": null,
-          "sea state and any named cyclone nearby": null,
-          "the condition and daily range": null,
-          "then gives temperature": null,
-          "type": "string",
-          "wind": null
-        },
-        "temp_c": {
-          "description": "Temperature in degrees Celsius.",
-          "type": "number"
-        },
-        "temp_max_c": {
-          "description": "Highest temperature that day in degrees Celsius.",
-          "type": "number"
-        },
-        "temp_min_c": {
-          "description": "Lowest temperature that day in degrees Celsius.",
-          "type": "number"
-        },
-        "valid_at": {
-          "description": "UTC timestamp the forecast applies to.",
-          "type": "string"
-        },
-        "wave_cm": {
-          "0 over land or when unread. The on-chain form of wave_m.": null,
-          "description": "Significant wave height in centimetres",
-          "type": "integer"
-        },
-        "wave_m": {
-          "description": "Significant wave height in metres for that hour",
-          "from the Open-Meteo marine model. Null over land or when the sea state could not be read.": null,
-          "type": "number"
-        },
-        "weather_code": {
-          "description": "WMO 4677 present-weather code for that hour.",
-          "type": "integer"
-        },
-        "wind_dir": {
-          "description": "Wind direction as a compass point",
-          "e.g. south-west.": null,
-          "type": "string"
-        },
-        "wind_dir_deg": {
-          "description": "Wind direction in degrees",
-          "meteorological (from).": null,
-          "type": "number"
-        },
-        "wind_kmh": {
-          "description": "Sustained wind speed in km/h.",
-          "type": "number"
-        },
-        "window_hours": {
-          "description": "When the question named a window (\"in the next 24 hours\")",
-          "its width in hours; valid_at is then the worst hour inside it. 0 when an exact hour was asked.": null,
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "risk",
-      "label_field": "summary",
-      "reason_field": "summary"
-    },
-    "supported_intents": [
-      "WEATHER_FORECAST",
-      "WEATHER_CHECK",
-      "STORM_ALERT"
-    ],
-    "docs": {
-      "website": "https://github.com/PugarHuda/amanat",
-      "documentation": "https://github.com/PugarHuda/amanat/blob/main/miner/README.md",
-      "repository": "https://github.com/PugarHuda/amanat"
-    },
-    "limitations": [
-      {
-        "code": "ACCOUNT_QUOTA",
-        "message": "Open-Meteo free tier allows 10000 requests per day",
-        "property": "rate",
-        "value_num": 10000,
-        "window_seconds": 86400
-      }
-    ],
-    "base_url": "https://amanat-miner.vercel.app",
-    "wallet_address": "0x39d2bae5eaeda9283535ddc98f1991c81ed5cd7e",
-    "fee_address": "0x3aaa5b87bd13be841e824e62cc4c66004420b7c3",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://raw.githubusercontent.com/PugarHuda/amanat/f38069e82ead79f4c0ccabe10ec4bc49182506f9/miner/amanat-miner.yaml",
-    "registered_at": "2026-08-28T16:04:24Z",
-    "total_requests_served": 822,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:16Z",
-    "scores": [
-      {
-        "intent_id": "STORM_ALERT",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.99556035,
-        "scored_at": "2026-09-07T09:17:16.543028Z"
-      },
-      {
-        "intent_id": "WEATHER_CHECK",
-        "epoch_id": 314,
-        "rank": 7,
-        "score": 0.015026163,
-        "scored_at": "2026-09-07T09:09:37.890409Z"
-      },
-      {
-        "intent_id": "WEATHER_FORECAST",
-        "epoch_id": 314,
-        "rank": 12,
-        "score": 0.00022226716,
-        "scored_at": "2026-09-07T09:08:46.72289Z"
       }
     ]
   },
@@ -2938,7 +1409,7 @@
     "min_price_usdc": 10000,
     "yaml_url": "https://raw.githubusercontent.com/Sireadell/onchain-tx/e4a7b74abb988754d9b99323b3ce19e24094b967/miner.yaml",
     "registered_at": "2026-08-31T22:56:53Z",
-    "total_requests_served": 660,
+    "total_requests_served": 1286,
     "scored": true,
     "last_scored_epoch": 314,
     "last_scored_at": "2026-09-07T09:17:58Z",
@@ -3039,6 +1510,1535 @@
         "epoch_id": 314,
         "rank": 10,
         "score": 0.00037409147,
+        "scored_at": "2026-09-07T09:08:46.72289Z"
+      }
+    ]
+  },
+  {
+    "id": "302",
+    "slug": "chainsight-oracle",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "ChainSight — On-Chain Intelligence Hub",
+    "description": "A single authoritative oracle for real-time on-chain and market intelligence: crypto prices, market cap and volume, DeFi TVL, fiat exchange rates, network gas prices, wallet balances and transaction lookups across Ethereum and Base. Every answer is number-first, canonical and independently reproducible — sourced from professional public feeds (CoinGecko, DefiLlama, public RPC, exchange-rate feeds) and recorded on Telegraph as a hashed, verifiable signal. Purpose-built for trading, risk and analytics agents that need one reliable endpoint for the full on-chain data surface. Accepts explicit params or a plain-language question and returns the exact figure with a concise statement.\n",
+    "endpoints": [
+      {
+        "path": "/price",
+        "method": "GET",
+        "description": "Current USD price of a crypto asset (CRYPTO_PRICE)."
+      },
+      {
+        "path": "/financial",
+        "method": "GET",
+        "description": "Price, market cap, 24h volume and change (FINANCIAL_DATA)."
+      },
+      {
+        "path": "/tvl",
+        "method": "GET",
+        "description": "Total value locked of a DeFi protocol or chain (TVL_LOOKUP)."
+      },
+      {
+        "path": "/fx",
+        "method": "GET",
+        "description": "Fiat exchange rate between two currencies (CURRENCY_EXCHANGE)."
+      },
+      {
+        "path": "/gas",
+        "method": "GET",
+        "description": "Current network gas price in gwei (GAS_PRICE)."
+      },
+      {
+        "path": "/balance",
+        "method": "GET",
+        "description": "Native ETH balance of a wallet address (WALLET_BALANCE_CHECK)."
+      },
+      {
+        "path": "/tx",
+        "method": "GET",
+        "description": "Details of an on-chain transaction by hash (ONCHAIN_TX_LOOKUP)."
+      },
+      {
+        "path": "/holders",
+        "method": "GET",
+        "description": "Number of holders of a token contract (TOKEN_HOLDER_COUNT)."
+      },
+      {
+        "path": "/stock",
+        "method": "GET",
+        "description": "Current price of a stock ticker (STOCK_PRICE)."
+      },
+      {
+        "path": "/fraud",
+        "method": "GET",
+        "description": "Malicious-activity risk assessment of an address (FRAUD_DETECTION)."
+      },
+      {
+        "path": "/urlscan",
+        "method": "GET",
+        "description": "Phishing/scam assessment of a URL (URL_SCAN)."
+      },
+      {
+        "path": "/wforecast",
+        "method": "GET",
+        "description": "Multi-day weather forecast for a location (WEATHER_FORECAST)."
+      },
+      {
+        "path": "/wcheck",
+        "method": "GET",
+        "description": "Current weather conditions for a location (WEATHER_CHECK)."
+      },
+      {
+        "path": "/wstorm",
+        "method": "GET",
+        "description": "Storm risk (wind, gusts, precipitation) at coordinates (STORM_ALERT)."
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "address": {
+          "description": "0x wallet address (40 hex).",
+          "type": "string"
+        },
+        "base": {
+          "description": "Base fiat currency code, e.g. EUR.",
+          "type": "string"
+        },
+        "chain": {
+          "description": "Chain name: ethereum or base.",
+          "type": "string"
+        },
+        "hash": {
+          "description": "0x transaction hash (64 hex).",
+          "type": "string"
+        },
+        "intent": {
+          "description": "Optional intent hint.",
+          "type": "string"
+        },
+        "protocol": {
+          "description": "DeFi protocol slug, e.g. aave, uniswap.",
+          "type": "string"
+        },
+        "query": {
+          "description": "Natural-language question if params are not supplied.",
+          "type": "string"
+        },
+        "quote": {
+          "description": "Quote fiat currency code, e.g. USD.",
+          "type": "string"
+        },
+        "symbol": {
+          "description": "Asset ticker or name, e.g. BTC, ethereum.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "balance_eth": {
+          "type": "number"
+        },
+        "gas_price_gwei": {
+          "type": "number"
+        },
+        "market_cap_usd": {
+          "type": "number"
+        },
+        "price_usd": {
+          "type": "number"
+        },
+        "rate": {
+          "type": "number"
+        },
+        "signal": {
+          "description": "Concise canonical answer (number-first).",
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "tvl_usd": {
+          "type": "number"
+        },
+        "value_eth": {
+          "type": "number"
+        },
+        "volume_24h_usd": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "label_field": "signal",
+      "reason_field": "source"
+    },
+    "supported_intents": [
+      "CRYPTO_PRICE",
+      "FINANCIAL_DATA",
+      "TVL_LOOKUP",
+      "CURRENCY_EXCHANGE",
+      "GAS_PRICE",
+      "WALLET_BALANCE_CHECK",
+      "ONCHAIN_TX_LOOKUP",
+      "TOKEN_HOLDER_COUNT",
+      "STOCK_PRICE",
+      "FRAUD_DETECTION",
+      "URL_SCAN",
+      "WEATHER_FORECAST",
+      "WEATHER_CHECK",
+      "STORM_ALERT"
+    ],
+    "base_url": "https://hub.shadrakbessanh.me",
+    "wallet_address": "0xd4c73e9986c0b48eac22db24b5eef0c8ecef8ef9",
+    "fee_address": "0xd4c73e9986c0b48eac22db24b5eef0c8ecef8ef9",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://hub.shadrakbessanh.me/miner.yaml",
+    "registered_at": "2026-08-29T10:55:42Z",
+    "total_requests_served": 842,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:58Z",
+    "scores": [
+      {
+        "intent_id": "FRAUD_DETECTION",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 1,
+        "scored_at": "2026-09-07T09:07:13.81189Z"
+      },
+      {
+        "intent_id": "GAS_PRICE",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 2.3914103e-11,
+        "scored_at": "2026-09-07T09:13:42.137615Z"
+      },
+      {
+        "intent_id": "URL_SCAN",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.96155113,
+        "scored_at": "2026-09-07T09:17:53.477982Z"
+      },
+      {
+        "intent_id": "WEATHER_CHECK",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.27740267,
+        "scored_at": "2026-09-07T09:09:37.890409Z"
+      },
+      {
+        "intent_id": "ONCHAIN_TX_LOOKUP",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.011474354,
+        "scored_at": "2026-09-07T09:16:36.550787Z"
+      },
+      {
+        "intent_id": "STOCK_PRICE",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 1.0887759e-14,
+        "scored_at": "2026-09-07T09:17:25.599382Z"
+      },
+      {
+        "intent_id": "STORM_ALERT",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.011138782,
+        "scored_at": "2026-09-07T09:17:16.543028Z"
+      },
+      {
+        "intent_id": "TOKEN_HOLDER_COUNT",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 5.0331766e-12,
+        "scored_at": "2026-09-07T09:14:00.742368Z"
+      },
+      {
+        "intent_id": "TVL_LOOKUP",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.027550608,
+        "scored_at": "2026-09-07T09:17:58.251541Z"
+      },
+      {
+        "intent_id": "WALLET_BALANCE_CHECK",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.9999996,
+        "scored_at": "2026-09-07T09:15:11.029514Z"
+      },
+      {
+        "intent_id": "CURRENCY_EXCHANGE",
+        "epoch_id": 314,
+        "rank": 4,
+        "score": 8.129208e-8,
+        "scored_at": "2026-09-07T09:10:08.150439Z"
+      },
+      {
+        "intent_id": "FINANCIAL_DATA",
+        "epoch_id": 314,
+        "rank": 4,
+        "score": 2.0159153e-25,
+        "scored_at": "2026-09-07T09:10:23.8694Z"
+      },
+      {
+        "intent_id": "CRYPTO_PRICE",
+        "epoch_id": 314,
+        "rank": 7,
+        "score": 2.693652e-39,
+        "scored_at": "2026-09-07T09:10:53.809496Z"
+      },
+      {
+        "intent_id": "WEATHER_FORECAST",
+        "epoch_id": 314,
+        "rank": 7,
+        "score": 0.0004333169,
+        "scored_at": "2026-09-07T09:08:46.72289Z"
+      }
+    ]
+  },
+  {
+    "id": "4433",
+    "slug": "livecert",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "LiveCert Operational Signals",
+    "description": "Deterministic operational signals. /ssl-check performs a live TLS handshake against a domain and reports the certificate that host is actually serving right now: valid, expired, self-signed, untrusted, or issued for a different hostname, with issuer, validity window and days remaining. Unlike certificate-transparency lookups, which report what was issued, this reports what is deployed — the two disagree whenever a host still serves an old certificate. /storm-alert reports severe-weather disruption risk for a named location over the next 48 hours, graded on Beaufort gust thresholds and thunderstorm forecasts, for logistics and risk agents that need to know about storms rather than current conditions. /weather-forecast reports future conditions for a location over a stated window: the expected condition in plain words, temperature range, total precipitation and peak wind. All three answers are deterministic and independently checkable.",
+    "endpoints": [
+      {
+        "path": "/ssl-check",
+        "method": "GET",
+        "description": "Live TLS certificate check for one domain. Accepts a bare hostname, a full URL, or host:port."
+      },
+      {
+        "path": "/storm-alert",
+        "method": "GET",
+        "description": "Severe-weather risk for a location over the next 48 hours. Accepts a place name or \"lat,lon\"."
+      },
+      {
+        "path": "/papers",
+        "method": "GET",
+        "description": "Finds peer-reviewed papers on a topic, optionally within a date range, via OpenAlex. Returns title, authors, year and citation count for each."
+      },
+      {
+        "path": "/translate",
+        "method": "GET",
+        "description": "Translates quoted text into a named target language. Returns the translation itself, in the target script."
+      },
+      {
+        "path": "/ip-geolocate",
+        "method": "GET",
+        "description": "Live IP geolocation. Accepts an IPv4 or IPv6 address, or a whole question containing one."
+      },
+      {
+        "path": "/weather-forecast",
+        "method": "GET",
+        "description": "Current and future conditions for a location. hours=0 reports the present hour; any other value gives a window of up to 168h, and the default with no hours parameter is 24h. Accepts a place name or \"lat,lon\"."
+      },
+      {
+        "path": "/extract",
+        "method": "GET",
+        "description": "Structured extraction from text supplied inline in the question. Reads quantities and units, contact details, named entities, action items, dates and events, or bare numeric values, and answers with the extracted fields themselves. The text is carried in the question, so nothing is fetched and the answer is deterministic and checkable against the input."
+      },
+      {
+        "path": "/headlines",
+        "method": "GET",
+        "description": "Current news headlines for a topic and optional region, read live from Google News at request time and returned as a numbered list with each source named. Honours a requested count such as \"top 5\". Headlines rotate, so the answer states the date it was read."
+      },
+      {
+        "path": "/wallet-balance",
+        "method": "GET",
+        "description": "Native-coin balance of an EVM address, read with eth_getBalance at the latest block from public JSON-RPC on the chain the question names — Ethereum, Base, Arbitrum, Optimism or Polygon. A zero balance is reported as zero; an RPC that does not answer is reported as unavailable rather than as zero. Token balances such as USDT are not included, and the answer says so when one was asked about."
+      },
+      {
+        "path": "/fact-check",
+        "method": "GET",
+        "description": "A specific claim, looked up against a citable encyclopaedic reference and reported with the article named and quoted. Reports an explicit refutation when the source states one, and otherwise says plainly that the source does not settle the claim. It does not adjudicate contested claims and never asserts that a claim is true on the strength of a topical match."
+      },
+      {
+        "path": "/telegraph",
+        "method": "GET",
+        "description": "Questions about Telegraph itself — miner registration and the YAML registry, the canonical intent set, how answers are scored, the Explorer and leaderboard, and the hackathon. Live figures such as the number of registered miners or the miners serving a named intent are read from the protocol at request time rather than recalled. Questions outside those areas are answered as not covered, with a pointer to the protocol documentation, rather than guessed."
+      },
+      {
+        "path": "/ai-detect",
+        "method": "GET",
+        "description": "Statistical authorship analysis of a supplied passage. Measures sentence-length burstiness, type-token ratio, repeated word pairs and formulaic connectives, and reports what they indicate with a calibrated confidence that is capped at 0.6. Authorship detection is not reliable enough to treat as proof and the answer says so; when no passage long enough to analyse is supplied it says that instead of guessing."
+      }
+    ],
+    "input_schema": {
+      "description": "Telegraph's engine fills the parameters a miner declares here and does not pass the rest of the question, so anything not declared is invisible. The query field is declared first because it carries the wording the structured fields cannot — an explicit start date, a time window, a wind threshold.",
+      "properties": {
+        "days": {
+          "description": "Forecast span in days, converted to hours.",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "domain": {
+          "description": "/ssl-check. Hostname to check. Accepts \"example.com\", \"https://example.com/path\", or \"example.com:8443\".",
+          "examples": [
+            "example.com",
+            "expired.badssl.com"
+          ],
+          "type": "string"
+        },
+        "forecast_days": {
+          "description": "Alias for days.",
+          "type": "integer"
+        },
+        "forecast_hours": {
+          "description": "Alias for hours.",
+          "type": "integer"
+        },
+        "hours": {
+          "description": "/storm-alert and /weather-forecast. Forecast window in hours. Also read from the question itself, e.g. \"over the next 44 hours\".",
+          "maximum": 384,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ip": {
+          "description": "/ip-geolocate. IPv4 or IPv6 address.",
+          "examples": [
+            "8.8.8.8"
+          ],
+          "type": "string"
+        },
+        "lat": {
+          "description": "Alias for latitude.",
+          "type": "number"
+        },
+        "latitude": {
+          "description": "/storm-alert and /weather-forecast. Use with longitude when the question names coordinates rather than a place.",
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "location": {
+          "description": "/storm-alert and /weather-forecast. Place name, e.g. \"Chennai\" or \"Tokyo, Japan\".",
+          "examples": [
+            "Chennai",
+            "Tokyo, Japan"
+          ],
+          "type": "string"
+        },
+        "lon": {
+          "description": "Alias for longitude.",
+          "type": "number"
+        },
+        "longitude": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "q": {
+          "description": "Alias for query.",
+          "type": "string"
+        },
+        "query": {
+          "description": "The user's original question, verbatim. Preferred over the structured fields: it carries detail they cannot, such as \"starting next Monday\", \"in 44 hours\", or \"flag winds above 25 knots\".",
+          "examples": [
+            "What is the storm risk at latitude 12.97, longitude 77.59 in 44 hours?",
+            "Can you analyze the TLS certificate chain and hostname match for api.github.com?"
+          ],
+          "type": "string"
+        },
+        "source_language": {
+          "description": "/translate. The language of the source text, when stated.",
+          "examples": [
+            "English"
+          ],
+          "type": "string"
+        },
+        "target_language": {
+          "description": "/translate. The language to translate into, by name or ISO 639-1 code.",
+          "examples": [
+            "Spanish",
+            "fr"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "/translate and /ai-detect. The text to translate, or the passage whose authorship is to be analysed, with or without quotes. Registration 260 declared no translation-shaped parameter and both scored epochs arrived with none filled — the engine fills only parameters a miner declares, so this field is what makes translation questions reach us.",
+          "examples": [
+            "The weather is beautiful today."
+          ],
+          "type": "string"
+        },
+        "topic": {
+          "description": "/papers. Research subject to search for, e.g. \"zero knowledge proofs\".",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "address": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "asn": {
+          "description": "Autonomous system number of the announcing network.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "balance_eth": {
+          "description": "Native-coin balance. Null when the RPC did not answer, which is not the same as zero.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "chain": {
+          "description": "ethereum, base, arbitrum, optimism or polygon.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chain_complete": {
+          "description": "Whether intermediates were sent, not just the leaf.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "chain_length": {
+          "description": "Certificates the server presented, leaf included. /ssl-check only.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "checked_at": {
+          "type": "string"
+        },
+        "city": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "claim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "count": {
+          "description": "Number of papers or headlines returned.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "country": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "country_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "days_remaining": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "domain": {
+          "type": "string"
+        },
+        "end_time": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence": {
+          "description": "The passage the verdict was read from.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expired": {
+          "type": "boolean"
+        },
+        "extracted": {
+          "description": "The fields the question asked for. Keys vary with the request — emails, phones, urls, quantities, dates, entities, action items.",
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "formulaic_markers": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "from_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "headlines": {
+          "items": {
+            "properties": {
+              "published": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "hostname_match": {
+          "type": "boolean"
+        },
+        "hourly_count": {
+          "description": "Number of hourly values returned.",
+          "type": "integer"
+        },
+        "hourly_max_precipitation_mm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "hourly_min_precipitation_mm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ip": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "issuer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "latitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "location": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_precipitation_mm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_wind_gust_kmh": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_wind_speed_kmh": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "mean_sentence_words": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "organisation": {
+          "description": "Network operator the address is registered to.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "papers": {
+          "description": "Each entry carries title, authors, year, citations, venue and doi.",
+          "items": {
+            "properties": {
+              "authors": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "citations": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "doi": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "venue": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "year": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "peak_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "precipitation_hours": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "precipitation_probability_max_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "region": {
+          "description": "Subdivision for an IP; requested news region for /headlines.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repeated_bigrams": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "risk_score": {
+          "description": "Storm risk from 0 (none) to 1 (severe). /storm-alert only.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "sentence_length_stdev": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sentences": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source": {
+          "description": "The reference consulted, named so a reader can weigh it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "span_days": {
+          "description": "Forecast span in days when the question asked in days.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "start_time": {
+          "description": "First hour of the returned series, UTC. /weather-forecast honours an explicit start named in the question.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "storm_expected": {
+          "type": "boolean"
+        },
+        "subject": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subject_alt_names": {
+          "description": "Subject Alternative Names on the leaf certificate.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "symbol": {
+          "description": "Native coin of the chain — POL on polygon, ETH elsewhere.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "temp_max_c": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "temp_min_c": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "threshold_exceeded": {
+          "description": "Whether a wind threshold named in the question was crossed.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "threshold_hours": {
+          "description": "The UTC hours at which it was crossed.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "thunderstorm": {
+          "type": "boolean"
+        },
+        "time_mode": {
+          "description": "\"point\" when the question asked about one moment (\"in 44 hours\", \"right now\"); \"window\" when it asked about a span (\"over the next 44 hours\").",
+          "enum": [
+            "point",
+            "window"
+          ],
+          "type": "string"
+        },
+        "timezone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tls_protocol": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "topic": {
+          "description": "Subject actually searched for, after parsing the question.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "total_precipitation_mm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "translation": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "trusted": {
+          "type": "boolean"
+        },
+        "type_token_ratio": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unreachable_reason": {
+          "description": "Why the host could not be reached, when it could not be.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "valid_at": {
+          "description": "For a point answer, the UTC hour the values describe. Null for a window.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "valid_from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "valid_to": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verdict": {
+          "description": "The answer's label, and its vocabulary is per endpoint. /ssl-check returns a certificate state (valid, expired, not_yet_valid, hostname_mismatch, self_signed, untrusted, unreachable); /storm-alert a storm-risk grade (none, low, moderate, high, severe); /weather-forecast a condition (clear, mostly clear, cloudy, fog, drizzle, rain, heavy rain, snow, thunderstorms); /translate \"translated\"; /papers \"papers\"; /ai-detect likely_human, likely_ai or inconclusive; and /ip-geolocate the resolved place itself, or the class of a special-use range (private, reserved, loopback, link_local, shared, multicast, broadcast). Any endpoint returns \"unknown\" when it could not answer. A closed enum was declared here previously and four endpoints did not conform to it, /ip-geolocate least of all because a place name cannot be enumerated.",
+          "type": "string"
+        },
+        "wind_direction": {
+          "description": "Compass direction of the peak wind.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "window_hours": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "words": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "verdict",
+      "reason_field": "reason"
+    },
+    "supported_intents": [
+      "SSL_VERIFICATION",
+      "STORM_ALERT",
+      "WEATHER_FORECAST",
+      "IP_GEOLOCATION",
+      "LANGUAGE_TRANSLATION",
+      "ACADEMIC_SEARCH",
+      "AI_TEXT_DETECTION",
+      "CONTENT_EXTRACTION",
+      "NEWS_HEADLINES",
+      "WALLET_BALANCE_CHECK",
+      "WEATHER_CHECK",
+      "FACT_CHECK",
+      "TELEGRAPH_KNOWLEDGE"
+    ],
+    "docs": {
+      "repository": "https://github.com/Harshyadav442277/miner"
+    },
+    "base_url": "https://miner-wine.vercel.app",
+    "wallet_address": "0xdad201ef02f5c1fbb8f9e931ae9b7c1bf493a39e",
+    "fee_address": "0xdad201ef02f5c1fbb8f9e931ae9b7c1bf493a39e",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://raw.githubusercontent.com/Harshyadav442277/miner/6b0d176048313cc6fec2788d18cb9ae24f3e2adc/track1-miner/miner.yaml",
+    "registered_at": "2026-08-31T21:43:35Z",
+    "total_requests_served": 834,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:16Z",
+    "scores": [
+      {
+        "intent_id": "ACADEMIC_SEARCH",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.016767038,
+        "scored_at": "2026-09-07T09:14:55.968181Z"
+      },
+      {
+        "intent_id": "CONTENT_EXTRACTION",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 1,
+        "scored_at": "2026-09-07T09:17:03.348768Z"
+      },
+      {
+        "intent_id": "LANGUAGE_TRANSLATION",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 1.3687619e-10,
+        "scored_at": "2026-09-07T09:07:31.554302Z"
+      },
+      {
+        "intent_id": "NEWS_HEADLINES",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.009272916,
+        "scored_at": "2026-09-07T09:10:13.869179Z"
+      },
+      {
+        "intent_id": "AI_TEXT_DETECTION",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 2.3622046e-10,
+        "scored_at": "2026-09-07T09:10:59.810933Z"
+      },
+      {
+        "intent_id": "TELEGRAPH_KNOWLEDGE",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 1.1734614e-11,
+        "scored_at": "2026-09-07T09:16:25.162164Z"
+      },
+      {
+        "intent_id": "FACT_CHECK",
+        "epoch_id": 314,
+        "rank": 3,
+        "score": 3.5300962e-9,
+        "scored_at": "2026-09-07T09:13:22.484686Z"
+      },
+      {
+        "intent_id": "IP_GEOLOCATION",
+        "epoch_id": 314,
+        "rank": 3,
+        "score": 0.99738914,
+        "scored_at": "2026-09-07T09:14:46.816635Z"
+      },
+      {
+        "intent_id": "SSL_VERIFICATION",
+        "epoch_id": 314,
+        "rank": 3,
+        "score": 0.008542038,
+        "scored_at": "2026-09-07T09:07:21.271351Z"
+      },
+      {
+        "intent_id": "WALLET_BALANCE_CHECK",
+        "epoch_id": 314,
+        "rank": 3,
+        "score": 0.9999993,
+        "scored_at": "2026-09-07T09:15:11.029514Z"
+      },
+      {
+        "intent_id": "STORM_ALERT",
+        "epoch_id": 314,
+        "rank": 4,
+        "score": 0.00869535,
+        "scored_at": "2026-09-07T09:17:16.543028Z"
+      },
+      {
+        "intent_id": "WEATHER_CHECK",
+        "epoch_id": 314,
+        "rank": 5,
+        "score": 0.01575727,
+        "scored_at": "2026-09-07T09:09:37.890409Z"
+      },
+      {
+        "intent_id": "WEATHER_FORECAST",
+        "epoch_id": 314,
+        "rank": 8,
+        "score": 0.00043070616,
+        "scored_at": "2026-09-07T09:08:46.72289Z"
+      }
+    ]
+  },
+  {
+    "id": "7306",
+    "slug": "skywire-storm-alert",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "SkyWire Storm Alert",
+    "description": "Active or upcoming severe weather for a named place, derived live from the open-meteo hourly forecast. Answers the STORM_ALERT intent: it flags thunderstorms, high wind gusts, heavy rain or snow and temperature extremes over the next window (default 24 hours, up to 48), grades each against advisory and warning thresholds that line up with how national weather services phrase things, and when nothing is severe it says so plainly. No API key, nothing cached that can go stale.\n",
+    "endpoints": [
+      {
+        "path": "/storm",
+        "method": "GET",
+        "description": "Severe-weather outlook for one place, location as a query parameter (?location=Miami&hours=24). Also accepts a whole question in ?query=.\n"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "hours": {
+          "description": "Look-ahead window in hours, 1 to 48, default 24.",
+          "type": "integer"
+        },
+        "location": {
+          "description": "Place name to assess for severe weather, for example Miami or Manila.",
+          "type": "string"
+        },
+        "question": {
+          "description": "The full natural-language question, verbatim, for example \"Is a storm expected in Miami in the next 48 hours?\". The miner reads the place and the window from it, so passing the whole question works as well as the structured fields.\n",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "breach": {
+          "description": "True when any hazard reaches at least advisory level in the window.",
+          "type": "boolean"
+        },
+        "confidence": {
+          "description": "0.95 for a direct open-meteo read.",
+          "type": "number"
+        },
+        "country": {
+          "description": "Country of the resolved place.",
+          "type": "string"
+        },
+        "hazards": {
+          "description": "Per-hazard type, level, detail and timing.",
+          "type": "array"
+        },
+        "level": {
+          "description": "none, advisory or warning, the most severe hazard in the window.",
+          "type": "string"
+        },
+        "location": {
+          "description": "Canonical place name the alert refers to.",
+          "type": "string"
+        },
+        "peak_gust_kmh": {
+          "description": "Highest wind gust in the window, km/h.",
+          "type": "number"
+        },
+        "risk": {
+          "description": "Confidence in the assessment, 0 to 1.",
+          "type": "number"
+        },
+        "summary": {
+          "description": "One sentence stating whether severe weather is expected and, if so, what and when.",
+          "type": "string"
+        },
+        "thunderstorms": {
+          "description": "Whether thunderstorms appear anywhere in the window.",
+          "type": "boolean"
+        },
+        "total_precip_mm": {
+          "description": "Total precipitation expected over the window, mm.",
+          "type": "number"
+        },
+        "total_snowfall_cm": {
+          "description": "Total snowfall expected over the window, cm.",
+          "type": "number"
+        },
+        "window_hours": {
+          "description": "Number of hours looked ahead.",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "risk",
+      "label_field": "summary",
+      "reason_field": "summary"
+    },
+    "supported_intents": [
+      "STORM_ALERT"
+    ],
+    "docs": {
+      "documentation": "https://telegraph-sky.margyn.workers.dev/",
+      "repository": "https://github.com/zkasuran/telegraph-skywire-miner"
+    },
+    "limitations": [
+      {
+        "code": "MAX_PARAM_VALUE",
+        "message": "location is a place name such as Miami, Manila or Tokyo. hours is 1 to 48 and defaults to 24. A whole question is accepted too.",
+        "param": "location",
+        "property": "length",
+        "value_num": 80,
+        "operator": "lte"
+      }
+    ],
+    "base_url": "https://telegraph-sky.margyn.workers.dev",
+    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/Qmb2tWGYXzJzMvT1aJXQmtHYxWM9cNpPwc1MmTSczGv3yu",
+    "registered_at": "2026-08-30T18:05:40Z",
+    "total_requests_served": 827,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:16Z",
+    "scores": [
+      {
+        "intent_id": "STORM_ALERT",
+        "epoch_id": 314,
+        "rank": 3,
+        "score": 0.009334127,
+        "scored_at": "2026-09-07T09:17:16.543028Z"
+      }
+    ]
+  },
+  {
+    "id": "20260821",
+    "slug": "amanat-weather-risk",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Amanat Weather Risk",
+    "description": "Parametric weather-risk signals for autonomous systems. Every answer carries a plain-language summary and the scalars behind it — temperature, wind, gusts, precipitation and a storm-risk score — so the same response can be graded by a Telegraph scoring module and acted on by a smart contract through an ERC-8183 job. Backed by Open-Meteo; no API key, no rate-limit surprises.\n",
+    "endpoints": [
+      {
+        "path": "/forecast",
+        "method": "POST",
+        "description": "Weather and storm-risk forecast for a place, at an hour offset. Takes lat/lon or a plain-language question."
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "hours": {
+          "description": "Hours ahead of now. 0 is the current hour. Read from the question when absent.",
+          "maximum": 168,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lat": {
+          "description": "Latitude in decimal degrees. Requires lon.",
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lon": {
+          "description": "Longitude in decimal degrees. Requires lat.",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "question": {
+          "description": "A plain-language weather question naming a place, e.g. 'Will Riyadh exceed 40 degrees in the next 24 hours?'. Used when lat and lon are absent.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "attestation": {
+          "canonical": null,
+          "description": "Ed25519 signature over the settle fields - algorithm",
+          "key_persistent. Verify with Node crypto.verify; the key is also at /.well-known/amanat.json.": null,
+          "public_key": null,
+          "sha256": null,
+          "signature": null,
+          "signed_fields": null,
+          "type": "object"
+        },
+        "attribution": {
+          "GDACS.": null,
+          "description": "Data sources and licence - Open-Meteo CC BY 4.0",
+          "type": "object"
+        },
+        "breach": {
+          "description": "True when risk is at or above the 0.75 payout threshold.",
+          "type": "boolean"
+        },
+        "cloud_pct": {
+          "description": "Cloud cover in percent for that hour.",
+          "type": "number"
+        },
+        "condition": {
+          "description": "WMO present-weather condition for that hour",
+          "e.g. Overcast or Thunderstorm. Null when the code is unrecognised.": null,
+          "type": "string"
+        },
+        "cyclone_alert": {
+          "Orange or Red.": null,
+          "description": "GDACS alert level for that cyclone - Green",
+          "type": "string"
+        },
+        "cyclone_km": {
+          "0 when none within 500 km. The on-chain form of cyclone_km_now.": null,
+          "description": "Distance in km to the nearest active cyclone now",
+          "type": "integer"
+        },
+        "cyclone_km_now": {
+          "description": "Distance in km to that cyclone's current position. Its position at the forecast hour is not published",
+          "so this is where it is now.": null,
+          "type": "integer"
+        },
+        "cyclone_max_wind_kmh": {
+          "description": "That cyclone's maximum sustained wind in km/h.",
+          "type": "integer"
+        },
+        "cyclone_name": {
+          "description": "Name of the nearest active tropical cyclone within 500 km",
+          "from GDACS. Null when none.": null,
+          "type": "string"
+        },
+        "days": {
+          "condition": null,
+          "description": "Today and tomorrow as a report prints them - date",
+          "high_c": null,
+          "label": null,
+          "low_c": null,
+          "precip_prob_pct": null,
+          "type": "array",
+          "wind_max_kmh.": null
+        },
+        "dew_point_c": {
+          "description": "Dew point in degrees Celsius for that hour.",
+          "type": "number"
+        },
+        "feels_like_c": {
+          "description": "Apparent temperature in degrees Celsius for that hour.",
+          "type": "number"
+        },
+        "gust_kmh": {
+          "description": "Wind gust speed in km/h.",
+          "type": "number"
+        },
+        "humidity_pct": {
+          "description": "Relative humidity in percent for that hour.",
+          "type": "number"
+        },
+        "place": {
+          "as resolved from the question. Null when coordinates were given.": null,
+          "description": "The place the reading is for",
+          "type": "string"
+        },
+        "precip_mm": {
+          "description": "Precipitation in mm for the hour.",
+          "type": "number"
+        },
+        "precip_prob_pct": {
+          "description": "Probability of precipitation in percent for that hour.",
+          "type": "number"
+        },
+        "risk": {
+          "description": "Storm risk between 0 and 1. The worst of wind",
+          "gusts": null,
+          "precipitation": null,
+          "type": "number",
+          "wave height and cyclone proximity.": null
+        },
+        "risk_band": {
+          "breach_probability. Null when the ensemble could not be read.": null,
+          "description": "The same risk across ECMWF ensemble members at that hour - model",
+          "max": null,
+          "members": null,
+          "p10": null,
+          "p50": null,
+          "p90": null,
+          "type": "object"
+        },
+        "sea_level_m": {
+          "description": "Sea level above mean sea level in metres for that hour",
+          "from the Open-Meteo marine model. Reported": null,
+          "not scored. Null over land.": null,
+          "tide and surge together": null,
+          "type": "number"
+        },
+        "source": {
+          "type": "string"
+        },
+        "summary": {
+          "and the storm risk.": null,
+          "description": "Plain-language forecast. Opens by restating the question",
+          "gusts": null,
+          "precipitation": null,
+          "sea state and any named cyclone nearby": null,
+          "the condition and daily range": null,
+          "then gives temperature": null,
+          "type": "string",
+          "wind": null
+        },
+        "temp_c": {
+          "description": "Temperature in degrees Celsius.",
+          "type": "number"
+        },
+        "temp_max_c": {
+          "description": "Highest temperature that day in degrees Celsius.",
+          "type": "number"
+        },
+        "temp_min_c": {
+          "description": "Lowest temperature that day in degrees Celsius.",
+          "type": "number"
+        },
+        "valid_at": {
+          "description": "UTC timestamp the forecast applies to.",
+          "type": "string"
+        },
+        "wave_cm": {
+          "0 over land or when unread. The on-chain form of wave_m.": null,
+          "description": "Significant wave height in centimetres",
+          "type": "integer"
+        },
+        "wave_m": {
+          "description": "Significant wave height in metres for that hour",
+          "from the Open-Meteo marine model. Null over land or when the sea state could not be read.": null,
+          "type": "number"
+        },
+        "weather_code": {
+          "description": "WMO 4677 present-weather code for that hour.",
+          "type": "integer"
+        },
+        "wind_dir": {
+          "description": "Wind direction as a compass point",
+          "e.g. south-west.": null,
+          "type": "string"
+        },
+        "wind_dir_deg": {
+          "description": "Wind direction in degrees",
+          "meteorological (from).": null,
+          "type": "number"
+        },
+        "wind_kmh": {
+          "description": "Sustained wind speed in km/h.",
+          "type": "number"
+        },
+        "window_hours": {
+          "description": "When the question named a window (\"in the next 24 hours\")",
+          "its width in hours; valid_at is then the worst hour inside it. 0 when an exact hour was asked.": null,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "risk",
+      "label_field": "summary",
+      "reason_field": "summary"
+    },
+    "supported_intents": [
+      "WEATHER_FORECAST",
+      "WEATHER_CHECK",
+      "STORM_ALERT"
+    ],
+    "docs": {
+      "website": "https://github.com/PugarHuda/amanat",
+      "documentation": "https://github.com/PugarHuda/amanat/blob/main/miner/README.md",
+      "repository": "https://github.com/PugarHuda/amanat"
+    },
+    "limitations": [
+      {
+        "code": "ACCOUNT_QUOTA",
+        "message": "Open-Meteo free tier allows 10000 requests per day",
+        "property": "rate",
+        "value_num": 10000,
+        "window_seconds": 86400
+      }
+    ],
+    "base_url": "https://amanat-miner.vercel.app",
+    "wallet_address": "0x39d2bae5eaeda9283535ddc98f1991c81ed5cd7e",
+    "fee_address": "0x3aaa5b87bd13be841e824e62cc4c66004420b7c3",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://raw.githubusercontent.com/PugarHuda/amanat/f38069e82ead79f4c0ccabe10ec4bc49182506f9/miner/amanat-miner.yaml",
+    "registered_at": "2026-08-28T16:04:24Z",
+    "total_requests_served": 822,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:16Z",
+    "scores": [
+      {
+        "intent_id": "STORM_ALERT",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.99556035,
+        "scored_at": "2026-09-07T09:17:16.543028Z"
+      },
+      {
+        "intent_id": "WEATHER_CHECK",
+        "epoch_id": 314,
+        "rank": 7,
+        "score": 0.015026163,
+        "scored_at": "2026-09-07T09:09:37.890409Z"
+      },
+      {
+        "intent_id": "WEATHER_FORECAST",
+        "epoch_id": 314,
+        "rank": 12,
+        "score": 0.00022226716,
         "scored_at": "2026-09-07T09:08:46.72289Z"
       }
     ]
@@ -3362,7 +3362,7 @@
     "min_price_usdc": 10000,
     "yaml_url": "http://127.0.0.1:8099/tavily.yaml",
     "registered_at": "2026-08-13T12:19:47Z",
-    "total_requests_served": 371,
+    "total_requests_served": 372,
     "scored": true,
     "last_scored_epoch": 314,
     "last_scored_at": "2026-09-07T09:18:25Z",
@@ -3504,692 +3504,6 @@
         "rank": 2,
         "score": 0.00049542927,
         "scored_at": "2026-09-07T09:08:46.72289Z"
-      }
-    ]
-  },
-  {
-    "id": "901",
-    "slug": "groq-llama31-instant-miner",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "Telegraph Groq LPU Miner",
-    "description": "High-throughput CHAT_COMPLETION miner powered by Groq llama-3.1-8b-instant.",
-    "endpoints": [
-      {
-        "path": "/chat",
-        "method": "POST"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "max_tokens": {
-          "description": "Max tokens",
-          "type": "integer"
-        },
-        "messages": {
-          "description": "Chat messages",
-          "items": {
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "model": {
-          "description": "Model id",
-          "type": "string"
-        },
-        "stream": {
-          "description": "Must be false / unused",
-          "type": "boolean"
-        },
-        "temperature": {
-          "description": "Sampling temperature",
-          "type": "number"
-        }
-      },
-      "required": [
-        "messages"
-      ],
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "choices": {
-          "items": {
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "confidence": {
-          "type": "number"
-        },
-        "created": {
-          "type": "integer"
-        },
-        "id": {
-          "type": "string"
-        },
-        "model": {
-          "type": "string"
-        },
-        "object": {
-          "type": "string"
-        },
-        "output": {
-          "type": "string"
-        },
-        "reason": {
-          "type": "string"
-        },
-        "usage": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "output",
-        "confidence",
-        "reason"
-      ],
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "output",
-      "reason_field": "reason"
-    },
-    "supported_intents": [
-      "CHAT_COMPLETION",
-      "LANGUAGE_GENERATION",
-      "TEXT_GENERATION"
-    ],
-    "docs": {
-      "website": "https://telegraph-miner-node.onrender.com",
-      "documentation": "https://telegraph-miner-node.onrender.com/docs",
-      "repository": "https://github.com/naveenscs/telegraph-miner-node",
-      "twitter": "https://x.com/Telegraphprotoc",
-      "discord": "https://discord.com/invite/telegraphprotocol"
-    },
-    "base_url": "https://telegraph-miner-node.onrender.com",
-    "wallet_address": "0x5658c7ca1f8c0f47cd1bafcb85c1873ed48d4080",
-    "fee_address": "0x5658c7ca1f8c0f47cd1bafcb85c1873ed48d4080",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmRzs5pMVwKrefrJQrJg1Fzvb5LfCeDLJPiEv6y6eo3esn",
-    "registered_at": "2026-08-14T12:42:47Z",
-    "total_requests_served": 317,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:13:17Z",
-    "scores": [
-      {
-        "intent_id": "LANGUAGE_GENERATION",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.9988098,
-        "scored_at": "2026-09-07T09:13:17.03177Z"
-      },
-      {
-        "intent_id": "TEXT_GENERATION",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.99994445,
-        "scored_at": "2026-09-07T09:10:55.637764Z"
-      },
-      {
-        "intent_id": "CHAT_COMPLETION",
-        "epoch_id": 314,
-        "rank": 5,
-        "score": 2.6069694e-10,
-        "scored_at": "2026-09-07T09:09:57.49785Z"
-      }
-    ]
-  },
-  {
-    "id": "94217603",
-    "slug": "telegraph-sentinel",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "Telegraph Sentinel",
-    "description": "Source-backed factual fraud knowledge and evidence-backed Ethereum wallet fraud-risk assessment. Answers questions about documented fraud schemes, cases, and perpetrators. For wallet questions, checks sanctions and scam registries, direct and circular funding, coordinated relay funding, funder fan-out and clusters, known exchange and bridge context, burn/null and known mixer applicability, and dangerous contract controls. Also reports live Aave v3 debt health as financial context without treating distress alone as fraud. Returns confidence and coverage limits, with transaction evidence where available.\n",
-    "endpoints": [
-      {
-        "path": "/fraud-query",
-        "method": "POST",
-        "description": "Answers source-backed factual questions about known fraud schemes, fraud cases, and perpetrators. JSON body: { \"query\": \"...\" }.\n"
-      },
-      {
-        "path": "/assess-wallet",
-        "method": "GET",
-        "description": "Assesses an Ethereum address for fraud risk using registries, funding relationships, contract controls, and bounded on-chain evidence. Query param: wallet (EVM address, required).\n"
-      },
-      {
-        "path": "/assess-wallet",
-        "method": "POST",
-        "description": "Assesses an Ethereum address for fraud risk using registries, funding relationships, contract controls, and bounded on-chain evidence. JSON body: { \"wallet\": \"0x...\" } (required).\n"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "query": {
-          "description": "General factual fraud question for the /fraud-query endpoint.",
-          "type": "string"
-        },
-        "wallet": {
-          "description": "EVM wallet address to assess (0x-prefixed, 40 hex characters).",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "analysis_tier": {
-          "enum": [
-            "fast",
-            "deep"
-          ],
-          "type": "string"
-        },
-        "answer": {
-          "description": "Source-backed factual answer returned by the fraud-knowledge endpoint.",
-          "type": "string"
-        },
-        "assessment_status": {
-          "enum": [
-            "ASSESSED",
-            "LIMITED",
-            "INCONCLUSIVE"
-          ],
-          "type": "string"
-        },
-        "confidence": {
-          "maximum": 1,
-          "minimum": 0,
-          "type": "number"
-        },
-        "coverage": {
-          "additionalProperties": {
-            "properties": {
-              "reason": {
-                "type": "string"
-              },
-              "status": {
-                "enum": [
-                  "complete",
-                  "partial",
-                  "skipped"
-                ],
-                "type": "string"
-              }
-            },
-            "type": "object"
-          },
-          "description": "Per-signal completeness, keyed by signal name.",
-          "type": "object"
-        },
-        "evidence": {
-          "description": "Structured on-chain evidence items. Field names are currently camelCase (evidenceId, signalCode, txHashes, blockNumbers, retrievedAt, rpcMethod, derivationMethod, ...), unlike the snake_case top-level fields on this object. See the casing note at the top of this file.\n",
-          "items": {
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "explanation": {
-          "description": "Human-readable, self-sufficient explanation. This is the field most likely read for downstream text extraction; see docs/EVALUATOR_NOTES.md (extraction mechanism not yet confirmed by Telegraph).\n",
-          "type": "string"
-        },
-        "label": {
-          "description": "ANSWERED or INCONCLUSIVE for fraud knowledge; the existing risk_level for wallet assessment.",
-          "type": "string"
-        },
-        "latency_ms": {
-          "type": "number"
-        },
-        "mode": {
-          "description": "Identifies which Sentinel capability produced the response.",
-          "enum": [
-            "fraud_knowledge",
-            "wallet_risk"
-          ],
-          "type": "string"
-        },
-        "reason": {
-          "description": "Complete factual answer or complete wallet-risk explanation used by Telegraph's shared mapping.",
-          "type": "string"
-        },
-        "reason_codes": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "risk_level": {
-          "enum": [
-            "LOW",
-            "ELEVATED",
-            "HIGH",
-            "NOT_APPLICABLE"
-          ],
-          "type": "string"
-        },
-        "risk_score": {
-          "maximum": 1,
-          "minimum": 0,
-          "type": "number"
-        },
-        "source": {
-          "description": "Source metadata included when a fraud-knowledge answer is available.",
-          "type": "object"
-        },
-        "wallet": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "mode",
-        "label",
-        "reason",
-        "confidence",
-        "assessment_status"
-      ],
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "label",
-      "reason_field": "reason"
-    },
-    "supported_intents": [
-      "FRAUD_DETECTION"
-    ],
-    "limitations": [
-      {
-        "code": "MAX_PARAM_VALUE",
-        "message": "wallet must be a valid 0x-prefixed, 40 hex character EVM address (EIP-55 checksum enforced when mixed-case).",
-        "param": "wallet",
-        "property": "length",
-        "value_num": 42,
-        "operator": "eq"
-      },
-      {
-        "code": "BOUNDED_SCAN",
-        "message": "Funding-relationship and circular-funding history is scanned up to a bounded page cap per source, not exhaustively. Incomplete scans are reported via assessment_status (LIMITED/INCONCLUSIVE) and per-signal coverage, not silently treated as clean history.\n"
-      }
-    ],
-    "base_url": "https://telegraph-sentinel-40vp.onrender.com",
-    "wallet_address": "0xb3fb14fecac09efbd0c74fc07d50d7ed1eef2b53",
-    "fee_address": "0x6f477610a93c5b255c29c489760045272bceda99",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmPn3ocq3LBRKJfai8t3Y45UWLmhtpVvx8jNzE5N4ArYmN",
-    "registered_at": "2026-08-25T14:00:52Z",
-    "total_requests_served": 229,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:07:13Z",
-    "scores": [
-      {
-        "intent_id": "FRAUD_DETECTION",
-        "epoch_id": 314,
-        "rank": 5,
-        "score": 3.811322e-14,
-        "scored_at": "2026-09-07T09:07:13.81189Z"
-      }
-    ]
-  },
-  {
-    "id": "200",
-    "slug": "telegraph-chatbot",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "Telegraph Knowledge Chatbot",
-    "description": "Telegraph protocol knowledge assistant. Answers questions about the Telegraph Network — its vision, tokenomics (Machina), architecture, smart contracts, miners, validators, payments (x402/ERC-8183), P2P networking, epoch settlement, roadmap, and how to build on Telegraph. Also handles general chat and web search. Use this miner when the user asks \"What is Telegraph?\", \"Telegraph roadmap\", \"How does Telegraph work?\", or any Telegraph protocol question.\n",
-    "endpoints": [
-      {
-        "path": "/chat",
-        "method": "POST",
-        "description": "OpenAI-compatible chat completion with Telegraph knowledge."
-      }
-    ],
-    "input_schema": null,
-    "output_schema": null,
-    "signal_mapping": {
-      "label_field": "choices"
-    },
-    "supported_intents": [
-      "CHAT_COMPLETION",
-      "LANGUAGE_GENERATION",
-      "TASK_COMPLETION",
-      "AGENT_TASK",
-      "WEB_SEARCH",
-      "TELEGRAPH_KNOWLEDGE"
-    ],
-    "base_url": "http://127.0.0.1:8080",
-    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
-    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "http://127.0.0.1:8099/telegraph-chatbot.yaml",
-    "registered_at": "2026-08-07T18:51:42Z",
-    "total_requests_served": 212,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:35Z",
-    "scores": [
-      {
-        "intent_id": "TELEGRAPH_KNOWLEDGE",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 1,
-        "scored_at": "2026-09-07T09:16:25.162164Z"
-      },
-      {
-        "intent_id": "CHAT_COMPLETION",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.99355865,
-        "scored_at": "2026-09-07T09:09:57.49785Z"
-      },
-      {
-        "intent_id": "LANGUAGE_GENERATION",
-        "epoch_id": 314,
-        "rank": 8,
-        "score": 0.9984595,
-        "scored_at": "2026-09-07T09:13:17.03177Z"
-      },
-      {
-        "intent_id": "WEB_SEARCH",
-        "epoch_id": 314,
-        "rank": 8,
-        "score": 8.924763e-12,
-        "scored_at": "2026-09-07T09:17:35.544585Z"
-      }
-    ]
-  },
-  {
-    "id": "7302",
-    "slug": "chainwire-holder-count",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "ChainWire Token Holder Count",
-    "description": "Distinct holder-address count for an ERC-20 token on a named EVM chain, read live from the public Blockscout API at request time. Answers the TOKEN_HOLDER_COUNT intent for Ethereum, Base, Arbitrum and Polygon. Give it a contract address or a known symbol; the figure is Blockscout's own holders_count, no API key and nothing cached that can silently go stale.\n",
-    "endpoints": [
-      {
-        "path": "/holders",
-        "method": "GET",
-        "description": "Holder count for one token, chain and token as query parameters (?chain=base&token=usdc). Also accepts a whole question in ?query=.\n"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "chain": {
-          "description": "EVM chain name, one of ethereum, base, arbitrum, polygon.",
-          "type": "string"
-        },
-        "token": {
-          "description": "ERC-20 contract address (0x...) or a known symbol such as USDC, USDT, DAI, WETH.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "as_of": {
-          "description": "ISO 8601 timestamp of the read.",
-          "type": "string"
-        },
-        "chain": {
-          "description": "Canonical chain name the answer refers to.",
-          "type": "string"
-        },
-        "chain_id": {
-          "description": "EVM chain id.",
-          "type": "integer"
-        },
-        "confidence": {
-          "description": "0.95, an explorer-reported figure that drifts block to block.",
-          "type": "number"
-        },
-        "contract_address": {
-          "description": "The token contract the count is for.",
-          "type": "string"
-        },
-        "holders": {
-          "description": "Number of distinct addresses holding the token.",
-          "type": "integer"
-        },
-        "source": {
-          "description": "Which Blockscout instance produced the figure.",
-          "type": "string"
-        },
-        "summary": {
-          "description": "One sentence naming the token, the chain and the holder count.",
-          "type": "string"
-        },
-        "symbol": {
-          "description": "Token symbol as reported by the explorer.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "summary",
-      "reason_field": "summary"
-    },
-    "supported_intents": [
-      "TOKEN_HOLDER_COUNT"
-    ],
-    "docs": {
-      "documentation": "https://telegraph-chain.margyn.workers.dev/"
-    },
-    "limitations": [
-      {
-        "code": "MAX_PARAM_VALUE",
-        "message": "chain must be one of ethereum, base, arbitrum, polygon (the chains with a public Blockscout instance). Token is a 0x contract address or a known symbol.",
-        "param": "chain",
-        "property": "length",
-        "value_num": 40,
-        "operator": "lte"
-      }
-    ],
-    "base_url": "https://telegraph-chain.margyn.workers.dev",
-    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmSMRS9w3Ypi9D7aSFBmHr8s4xgNoNEVctQto7LjKtEW2Z",
-    "registered_at": "2026-08-30T17:56:10Z",
-    "total_requests_served": 211,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:14:00Z",
-    "scores": [
-      {
-        "intent_id": "TOKEN_HOLDER_COUNT",
-        "epoch_id": 314,
-        "rank": 4,
-        "score": 4.6614513e-12,
-        "scored_at": "2026-09-07T09:14:00.742368Z"
-      }
-    ]
-  },
-  {
-    "id": "501",
-    "slug": "sentinel-risk-oracle",
-    "kind": "miner",
-    "protocol": "",
-    "name": "Telegraph Sentinel Risk Intelligence",
-    "description": "Autonomous pre-flight DeFi risk intelligence and real-time live crypto pricing oracle.",
-    "endpoints": [
-      {
-        "path": "/api/v1/miner/risk-assessment",
-        "method": "POST",
-        "description": "Live real-time cryptocurrency spot price and market intelligence oracle."
-      }
-    ],
-    "input_schema": null,
-    "output_schema": null,
-    "supported_intents": [
-      "CRYPTO_PRICE",
-      "TVL_LOOKUP",
-      "WEB_SEARCH"
-    ],
-    "base_url": "https://telegraph-sentinel-d68u.onrender.com",
-    "wallet_address": "0x6811a9e33ce68fbdf6e07dfacab317072c287596",
-    "fee_address": "0x6811a9e33ce68fbdf6e07dfacab317072c287596",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://raw.githubusercontent.com/peterkehinde673/telegraph-sentinel/main/docs/sentinel-miner.yaml",
-    "registered_at": "2026-08-25T13:34:23Z",
-    "total_requests_served": 195,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:58Z",
-    "scores": [
-      {
-        "intent_id": "TVL_LOOKUP",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.030563487,
-        "scored_at": "2026-09-07T09:17:58.251541Z"
-      },
-      {
-        "intent_id": "WEB_SEARCH",
-        "epoch_id": 314,
-        "rank": 9,
-        "score": 5.225935e-12,
-        "scored_at": "2026-09-07T09:17:35.544585Z"
-      },
-      {
-        "intent_id": "CRYPTO_PRICE",
-        "epoch_id": 314,
-        "rank": 14,
-        "score": 0,
-        "scored_at": "2026-09-07T09:10:53.809496Z"
-      }
-    ]
-  },
-  {
-    "id": "211",
-    "slug": "openweathermap",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "OpenWeatherMap",
-    "description": "OpenWeatherMap provides current weather data, forecasts, and historical weather information for any location worldwide. Agents use it for weather checks, forecast planning, and climate data retrieval.\n",
-    "endpoints": [
-      {
-        "path": "/weather",
-        "method": "GET",
-        "description": "Get current weather data for a location by city name or coordinates."
-      },
-      {
-        "path": "/forecast",
-        "method": "GET",
-        "description": "Get 5-day weather forecast for a location by city name or coordinates."
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "lat": {
-          "description": "Latitude coordinate.",
-          "type": "number"
-        },
-        "lon": {
-          "description": "Longitude coordinate.",
-          "type": "number"
-        },
-        "q": {
-          "description": "City name and country code.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "main": {
-          "properties": {
-            "feels_like": {
-              "type": "number"
-            },
-            "humidity": {
-              "type": "integer"
-            },
-            "pressure": {
-              "type": "integer"
-            },
-            "temp": {
-              "type": "number"
-            }
-          },
-          "type": "object"
-        },
-        "name": {
-          "type": "string"
-        },
-        "weather": {
-          "items": {
-            "properties": {
-              "description": {
-                "type": "string"
-              },
-              "main": {
-                "type": "string"
-              }
-            },
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "wind": {
-          "properties": {
-            "speed": {
-              "type": "number"
-            }
-          },
-          "type": "object"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "label_field": "weather"
-    },
-    "supported_intents": [
-      "WEATHER_CHECK",
-      "WEATHER_FORECAST"
-    ],
-    "docs": {
-      "website": "https://openweathermap.org",
-      "documentation": "https://openweathermap.org/api"
-    },
-    "base_url": "https://api.openweathermap.org/data/2.5",
-    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
-    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "http://127.0.0.1:8099/openweathermap.yaml",
-    "registered_at": "2026-08-07T18:43:27Z",
-    "total_requests_served": 178,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:09:37Z",
-    "scores": [
-      {
-        "intent_id": "WEATHER_FORECAST",
-        "epoch_id": 314,
-        "rank": 5,
-        "score": 0.00046094644,
-        "scored_at": "2026-09-07T09:08:46.72289Z"
-      },
-      {
-        "intent_id": "WEATHER_CHECK",
-        "epoch_id": 314,
-        "rank": 9,
-        "score": 0.013189325,
-        "scored_at": "2026-09-07T09:09:37.890409Z"
       }
     ]
   },
@@ -4773,7 +4087,7 @@
     "min_price_usdc": 10000,
     "yaml_url": "https://raw.githubusercontent.com/shreshth006/Preflight/47372bbf5855b84c9e97b94f2a6f91986b225ae9/telegraph/miner.yaml",
     "registered_at": "2026-08-30T20:06:29Z",
-    "total_requests_served": 169,
+    "total_requests_served": 345,
     "scored": true,
     "last_scored_epoch": 314,
     "last_scored_at": "2026-09-07T09:18:05Z",
@@ -4847,6 +4161,692 @@
         "rank": 7,
         "score": 5.3057133e-12,
         "scored_at": "2026-09-07T09:15:11.029514Z"
+      }
+    ]
+  },
+  {
+    "id": "901",
+    "slug": "groq-llama31-instant-miner",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Telegraph Groq LPU Miner",
+    "description": "High-throughput CHAT_COMPLETION miner powered by Groq llama-3.1-8b-instant.",
+    "endpoints": [
+      {
+        "path": "/chat",
+        "method": "POST"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "max_tokens": {
+          "description": "Max tokens",
+          "type": "integer"
+        },
+        "messages": {
+          "description": "Chat messages",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "model": {
+          "description": "Model id",
+          "type": "string"
+        },
+        "stream": {
+          "description": "Must be false / unused",
+          "type": "boolean"
+        },
+        "temperature": {
+          "description": "Sampling temperature",
+          "type": "number"
+        }
+      },
+      "required": [
+        "messages"
+      ],
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "choices": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "created": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "usage": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "output",
+        "confidence",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "output",
+      "reason_field": "reason"
+    },
+    "supported_intents": [
+      "CHAT_COMPLETION",
+      "LANGUAGE_GENERATION",
+      "TEXT_GENERATION"
+    ],
+    "docs": {
+      "website": "https://telegraph-miner-node.onrender.com",
+      "documentation": "https://telegraph-miner-node.onrender.com/docs",
+      "repository": "https://github.com/naveenscs/telegraph-miner-node",
+      "twitter": "https://x.com/Telegraphprotoc",
+      "discord": "https://discord.com/invite/telegraphprotocol"
+    },
+    "base_url": "https://telegraph-miner-node.onrender.com",
+    "wallet_address": "0x5658c7ca1f8c0f47cd1bafcb85c1873ed48d4080",
+    "fee_address": "0x5658c7ca1f8c0f47cd1bafcb85c1873ed48d4080",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmRzs5pMVwKrefrJQrJg1Fzvb5LfCeDLJPiEv6y6eo3esn",
+    "registered_at": "2026-08-14T12:42:47Z",
+    "total_requests_served": 318,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:13:17Z",
+    "scores": [
+      {
+        "intent_id": "LANGUAGE_GENERATION",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.9988098,
+        "scored_at": "2026-09-07T09:13:17.03177Z"
+      },
+      {
+        "intent_id": "TEXT_GENERATION",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.99994445,
+        "scored_at": "2026-09-07T09:10:55.637764Z"
+      },
+      {
+        "intent_id": "CHAT_COMPLETION",
+        "epoch_id": 314,
+        "rank": 5,
+        "score": 2.6069694e-10,
+        "scored_at": "2026-09-07T09:09:57.49785Z"
+      }
+    ]
+  },
+  {
+    "id": "94217603",
+    "slug": "telegraph-sentinel",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Telegraph Sentinel",
+    "description": "Source-backed factual fraud knowledge and evidence-backed Ethereum wallet fraud-risk assessment. Answers questions about documented fraud schemes, cases, and perpetrators. For wallet questions, checks sanctions and scam registries, direct and circular funding, coordinated relay funding, funder fan-out and clusters, known exchange and bridge context, burn/null and known mixer applicability, and dangerous contract controls. Also reports live Aave v3 debt health as financial context without treating distress alone as fraud. Returns confidence and coverage limits, with transaction evidence where available.\n",
+    "endpoints": [
+      {
+        "path": "/fraud-query",
+        "method": "POST",
+        "description": "Answers source-backed factual questions about known fraud schemes, fraud cases, and perpetrators. JSON body: { \"query\": \"...\" }.\n"
+      },
+      {
+        "path": "/assess-wallet",
+        "method": "GET",
+        "description": "Assesses an Ethereum address for fraud risk using registries, funding relationships, contract controls, and bounded on-chain evidence. Query param: wallet (EVM address, required).\n"
+      },
+      {
+        "path": "/assess-wallet",
+        "method": "POST",
+        "description": "Assesses an Ethereum address for fraud risk using registries, funding relationships, contract controls, and bounded on-chain evidence. JSON body: { \"wallet\": \"0x...\" } (required).\n"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "query": {
+          "description": "General factual fraud question for the /fraud-query endpoint.",
+          "type": "string"
+        },
+        "wallet": {
+          "description": "EVM wallet address to assess (0x-prefixed, 40 hex characters).",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "analysis_tier": {
+          "enum": [
+            "fast",
+            "deep"
+          ],
+          "type": "string"
+        },
+        "answer": {
+          "description": "Source-backed factual answer returned by the fraud-knowledge endpoint.",
+          "type": "string"
+        },
+        "assessment_status": {
+          "enum": [
+            "ASSESSED",
+            "LIMITED",
+            "INCONCLUSIVE"
+          ],
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "coverage": {
+          "additionalProperties": {
+            "properties": {
+              "reason": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "complete",
+                  "partial",
+                  "skipped"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "description": "Per-signal completeness, keyed by signal name.",
+          "type": "object"
+        },
+        "evidence": {
+          "description": "Structured on-chain evidence items. Field names are currently camelCase (evidenceId, signalCode, txHashes, blockNumbers, retrievedAt, rpcMethod, derivationMethod, ...), unlike the snake_case top-level fields on this object. See the casing note at the top of this file.\n",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "explanation": {
+          "description": "Human-readable, self-sufficient explanation. This is the field most likely read for downstream text extraction; see docs/EVALUATOR_NOTES.md (extraction mechanism not yet confirmed by Telegraph).\n",
+          "type": "string"
+        },
+        "label": {
+          "description": "ANSWERED or INCONCLUSIVE for fraud knowledge; the existing risk_level for wallet assessment.",
+          "type": "string"
+        },
+        "latency_ms": {
+          "type": "number"
+        },
+        "mode": {
+          "description": "Identifies which Sentinel capability produced the response.",
+          "enum": [
+            "fraud_knowledge",
+            "wallet_risk"
+          ],
+          "type": "string"
+        },
+        "reason": {
+          "description": "Complete factual answer or complete wallet-risk explanation used by Telegraph's shared mapping.",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "risk_level": {
+          "enum": [
+            "LOW",
+            "ELEVATED",
+            "HIGH",
+            "NOT_APPLICABLE"
+          ],
+          "type": "string"
+        },
+        "risk_score": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "source": {
+          "description": "Source metadata included when a fraud-knowledge answer is available.",
+          "type": "object"
+        },
+        "wallet": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "label",
+        "reason",
+        "confidence",
+        "assessment_status"
+      ],
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "label",
+      "reason_field": "reason"
+    },
+    "supported_intents": [
+      "FRAUD_DETECTION"
+    ],
+    "limitations": [
+      {
+        "code": "MAX_PARAM_VALUE",
+        "message": "wallet must be a valid 0x-prefixed, 40 hex character EVM address (EIP-55 checksum enforced when mixed-case).",
+        "param": "wallet",
+        "property": "length",
+        "value_num": 42,
+        "operator": "eq"
+      },
+      {
+        "code": "BOUNDED_SCAN",
+        "message": "Funding-relationship and circular-funding history is scanned up to a bounded page cap per source, not exhaustively. Incomplete scans are reported via assessment_status (LIMITED/INCONCLUSIVE) and per-signal coverage, not silently treated as clean history.\n"
+      }
+    ],
+    "base_url": "https://telegraph-sentinel-40vp.onrender.com",
+    "wallet_address": "0xb3fb14fecac09efbd0c74fc07d50d7ed1eef2b53",
+    "fee_address": "0x6f477610a93c5b255c29c489760045272bceda99",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmPn3ocq3LBRKJfai8t3Y45UWLmhtpVvx8jNzE5N4ArYmN",
+    "registered_at": "2026-08-25T14:00:52Z",
+    "total_requests_served": 229,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:07:13Z",
+    "scores": [
+      {
+        "intent_id": "FRAUD_DETECTION",
+        "epoch_id": 314,
+        "rank": 5,
+        "score": 3.811322e-14,
+        "scored_at": "2026-09-07T09:07:13.81189Z"
+      }
+    ]
+  },
+  {
+    "id": "200",
+    "slug": "telegraph-chatbot",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Telegraph Knowledge Chatbot",
+    "description": "Telegraph protocol knowledge assistant. Answers questions about the Telegraph Network — its vision, tokenomics (Machina), architecture, smart contracts, miners, validators, payments (x402/ERC-8183), P2P networking, epoch settlement, roadmap, and how to build on Telegraph. Also handles general chat and web search. Use this miner when the user asks \"What is Telegraph?\", \"Telegraph roadmap\", \"How does Telegraph work?\", or any Telegraph protocol question.\n",
+    "endpoints": [
+      {
+        "path": "/chat",
+        "method": "POST",
+        "description": "OpenAI-compatible chat completion with Telegraph knowledge."
+      }
+    ],
+    "input_schema": null,
+    "output_schema": null,
+    "signal_mapping": {
+      "label_field": "choices"
+    },
+    "supported_intents": [
+      "CHAT_COMPLETION",
+      "LANGUAGE_GENERATION",
+      "TASK_COMPLETION",
+      "AGENT_TASK",
+      "WEB_SEARCH",
+      "TELEGRAPH_KNOWLEDGE"
+    ],
+    "base_url": "http://127.0.0.1:8080",
+    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "http://127.0.0.1:8099/telegraph-chatbot.yaml",
+    "registered_at": "2026-08-07T18:51:42Z",
+    "total_requests_served": 214,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:35Z",
+    "scores": [
+      {
+        "intent_id": "TELEGRAPH_KNOWLEDGE",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 1,
+        "scored_at": "2026-09-07T09:16:25.162164Z"
+      },
+      {
+        "intent_id": "CHAT_COMPLETION",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.99355865,
+        "scored_at": "2026-09-07T09:09:57.49785Z"
+      },
+      {
+        "intent_id": "LANGUAGE_GENERATION",
+        "epoch_id": 314,
+        "rank": 8,
+        "score": 0.9984595,
+        "scored_at": "2026-09-07T09:13:17.03177Z"
+      },
+      {
+        "intent_id": "WEB_SEARCH",
+        "epoch_id": 314,
+        "rank": 8,
+        "score": 8.924763e-12,
+        "scored_at": "2026-09-07T09:17:35.544585Z"
+      }
+    ]
+  },
+  {
+    "id": "7302",
+    "slug": "chainwire-holder-count",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "ChainWire Token Holder Count",
+    "description": "Distinct holder-address count for an ERC-20 token on a named EVM chain, read live from the public Blockscout API at request time. Answers the TOKEN_HOLDER_COUNT intent for Ethereum, Base, Arbitrum and Polygon. Give it a contract address or a known symbol; the figure is Blockscout's own holders_count, no API key and nothing cached that can silently go stale.\n",
+    "endpoints": [
+      {
+        "path": "/holders",
+        "method": "GET",
+        "description": "Holder count for one token, chain and token as query parameters (?chain=base&token=usdc). Also accepts a whole question in ?query=.\n"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "chain": {
+          "description": "EVM chain name, one of ethereum, base, arbitrum, polygon.",
+          "type": "string"
+        },
+        "token": {
+          "description": "ERC-20 contract address (0x...) or a known symbol such as USDC, USDT, DAI, WETH.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "as_of": {
+          "description": "ISO 8601 timestamp of the read.",
+          "type": "string"
+        },
+        "chain": {
+          "description": "Canonical chain name the answer refers to.",
+          "type": "string"
+        },
+        "chain_id": {
+          "description": "EVM chain id.",
+          "type": "integer"
+        },
+        "confidence": {
+          "description": "0.95, an explorer-reported figure that drifts block to block.",
+          "type": "number"
+        },
+        "contract_address": {
+          "description": "The token contract the count is for.",
+          "type": "string"
+        },
+        "holders": {
+          "description": "Number of distinct addresses holding the token.",
+          "type": "integer"
+        },
+        "source": {
+          "description": "Which Blockscout instance produced the figure.",
+          "type": "string"
+        },
+        "summary": {
+          "description": "One sentence naming the token, the chain and the holder count.",
+          "type": "string"
+        },
+        "symbol": {
+          "description": "Token symbol as reported by the explorer.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "summary",
+      "reason_field": "summary"
+    },
+    "supported_intents": [
+      "TOKEN_HOLDER_COUNT"
+    ],
+    "docs": {
+      "documentation": "https://telegraph-chain.margyn.workers.dev/"
+    },
+    "limitations": [
+      {
+        "code": "MAX_PARAM_VALUE",
+        "message": "chain must be one of ethereum, base, arbitrum, polygon (the chains with a public Blockscout instance). Token is a 0x contract address or a known symbol.",
+        "param": "chain",
+        "property": "length",
+        "value_num": 40,
+        "operator": "lte"
+      }
+    ],
+    "base_url": "https://telegraph-chain.margyn.workers.dev",
+    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmSMRS9w3Ypi9D7aSFBmHr8s4xgNoNEVctQto7LjKtEW2Z",
+    "registered_at": "2026-08-30T17:56:10Z",
+    "total_requests_served": 211,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:14:00Z",
+    "scores": [
+      {
+        "intent_id": "TOKEN_HOLDER_COUNT",
+        "epoch_id": 314,
+        "rank": 4,
+        "score": 4.6614513e-12,
+        "scored_at": "2026-09-07T09:14:00.742368Z"
+      }
+    ]
+  },
+  {
+    "id": "501",
+    "slug": "sentinel-risk-oracle",
+    "kind": "miner",
+    "protocol": "",
+    "name": "Telegraph Sentinel Risk Intelligence",
+    "description": "Autonomous pre-flight DeFi risk intelligence and real-time live crypto pricing oracle.",
+    "endpoints": [
+      {
+        "path": "/api/v1/miner/risk-assessment",
+        "method": "POST",
+        "description": "Live real-time cryptocurrency spot price and market intelligence oracle."
+      }
+    ],
+    "input_schema": null,
+    "output_schema": null,
+    "supported_intents": [
+      "CRYPTO_PRICE",
+      "TVL_LOOKUP",
+      "WEB_SEARCH"
+    ],
+    "base_url": "https://telegraph-sentinel-d68u.onrender.com",
+    "wallet_address": "0x6811a9e33ce68fbdf6e07dfacab317072c287596",
+    "fee_address": "0x6811a9e33ce68fbdf6e07dfacab317072c287596",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://raw.githubusercontent.com/peterkehinde673/telegraph-sentinel/main/docs/sentinel-miner.yaml",
+    "registered_at": "2026-08-25T13:34:23Z",
+    "total_requests_served": 195,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:58Z",
+    "scores": [
+      {
+        "intent_id": "TVL_LOOKUP",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.030563487,
+        "scored_at": "2026-09-07T09:17:58.251541Z"
+      },
+      {
+        "intent_id": "WEB_SEARCH",
+        "epoch_id": 314,
+        "rank": 9,
+        "score": 5.225935e-12,
+        "scored_at": "2026-09-07T09:17:35.544585Z"
+      },
+      {
+        "intent_id": "CRYPTO_PRICE",
+        "epoch_id": 314,
+        "rank": 14,
+        "score": 0,
+        "scored_at": "2026-09-07T09:10:53.809496Z"
+      }
+    ]
+  },
+  {
+    "id": "211",
+    "slug": "openweathermap",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "OpenWeatherMap",
+    "description": "OpenWeatherMap provides current weather data, forecasts, and historical weather information for any location worldwide. Agents use it for weather checks, forecast planning, and climate data retrieval.\n",
+    "endpoints": [
+      {
+        "path": "/weather",
+        "method": "GET",
+        "description": "Get current weather data for a location by city name or coordinates."
+      },
+      {
+        "path": "/forecast",
+        "method": "GET",
+        "description": "Get 5-day weather forecast for a location by city name or coordinates."
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "lat": {
+          "description": "Latitude coordinate.",
+          "type": "number"
+        },
+        "lon": {
+          "description": "Longitude coordinate.",
+          "type": "number"
+        },
+        "q": {
+          "description": "City name and country code.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "main": {
+          "properties": {
+            "feels_like": {
+              "type": "number"
+            },
+            "humidity": {
+              "type": "integer"
+            },
+            "pressure": {
+              "type": "integer"
+            },
+            "temp": {
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "weather": {
+          "items": {
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "main": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "wind": {
+          "properties": {
+            "speed": {
+              "type": "number"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "label_field": "weather"
+    },
+    "supported_intents": [
+      "WEATHER_CHECK",
+      "WEATHER_FORECAST"
+    ],
+    "docs": {
+      "website": "https://openweathermap.org",
+      "documentation": "https://openweathermap.org/api"
+    },
+    "base_url": "https://api.openweathermap.org/data/2.5",
+    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "http://127.0.0.1:8099/openweathermap.yaml",
+    "registered_at": "2026-08-07T18:43:27Z",
+    "total_requests_served": 178,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:09:37Z",
+    "scores": [
+      {
+        "intent_id": "WEATHER_FORECAST",
+        "epoch_id": 314,
+        "rank": 5,
+        "score": 0.00046094644,
+        "scored_at": "2026-09-07T09:08:46.72289Z"
+      },
+      {
+        "intent_id": "WEATHER_CHECK",
+        "epoch_id": 314,
+        "rank": 9,
+        "score": 0.013189325,
+        "scored_at": "2026-09-07T09:09:37.890409Z"
       }
     ]
   },
@@ -5402,6 +5402,92 @@
         "rank": 6,
         "score": 0.00045520448,
         "scored_at": "2026-09-07T09:08:46.72289Z"
+      }
+    ]
+  },
+  {
+    "id": "95822412",
+    "slug": "refut-onchain-risk",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Refut On-Chain Risk",
+    "description": "Deterministic on-chain control-risk signals for an EVM subject — contract vs externally-owned account, upgradeability (EIP-1967 proxy), privileged admin/owner control, and pause capability — returned as an ALLOW / RECHECK / BLOCK verdict with a 0–1 confidence and plain reasoning. An ALLOW reports the checks run; it never asserts a subject is safe.\n",
+    "endpoints": [
+      {
+        "path": "/assess",
+        "method": "POST",
+        "description": "Assess on-chain control risk for an EVM subject address."
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "address": {
+          "pattern": "^0x[0-9a-fA-F]{40}$",
+          "type": "string"
+        },
+        "chainId": {
+          "description": "1 (Ethereum), 8453 (Base), or 84532 (Base Sepolia). Defaults to 1.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "address"
+      ],
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "confidence": {
+          "type": "number"
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "ALLOW",
+            "RECHECK",
+            "BLOCK"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "verdict",
+        "confidence",
+        "reasoning"
+      ],
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "verdict",
+      "reason_field": "reasoning"
+    },
+    "supported_intents": [
+      "FRAUD_DETECTION"
+    ],
+    "docs": {
+      "repository": "https://github.com/winsznx/refut"
+    },
+    "base_url": "https://refut-fraud-miner.timjosh507.workers.dev",
+    "wallet_address": "0xf97933df45eb549a51ce4c4e76130c61d08f1ab5",
+    "fee_address": "0xf97933df45eb549a51ce4c4e76130c61d08f1ab5",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmNd1d6cBeikc84eK64VbuKWgDM6NJ9FnHPxzHsY5bwyrF",
+    "registered_at": "2026-08-30T23:24:09Z",
+    "total_requests_served": 144,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:07:13Z",
+    "scores": [
+      {
+        "intent_id": "FRAUD_DETECTION",
+        "epoch_id": 314,
+        "rank": 10,
+        "score": 0,
+        "scored_at": "2026-09-07T09:07:13.81189Z"
       }
     ]
   },
@@ -8133,6 +8219,78 @@
     ]
   },
   {
+    "id": "5001",
+    "slug": "url-sentinel",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "URL Sentinel",
+    "description": "Multi-signal URL safety scanner. Combines a real-time malware/phishing URL feed (URLhaus) with native DNS, TLS certificate, and redirect-chain analysis to produce a deterministic safe/suspicious/malicious verdict. No single upstream provider's downtime fully blocks a verdict.\n",
+    "endpoints": [
+      {
+        "path": "/scan",
+        "method": "POST",
+        "description": "Scan a URL and return a safe/suspicious/malicious verdict with confidence and reasoning.\n"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "url": {
+          "description": "The URL to analyze.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "confidence": {
+          "description": "0.0-1.0 confidence in the verdict.",
+          "type": "number"
+        },
+        "reason": {
+          "description": "Short human-readable explanation of the evidence used.",
+          "type": "string"
+        },
+        "verdict": {
+          "description": "One of \"safe\", \"suspicious\", \"malicious\", or \"unknown\".",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "verdict",
+      "reason_field": "reason"
+    },
+    "supported_intents": [
+      "URL_SCAN"
+    ],
+    "base_url": "https://telegraph-url-scan-miner.onrender.com",
+    "wallet_address": "0x98ec4d722048eb7cf6386c8f5c9757e9b0143f8c",
+    "fee_address": "0x98ec4d722048eb7cf6386c8f5c9757e9b0143f8c",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://raw.githubusercontent.com/egbujor-emmanuel/telegraph-url-scan-miner/24e037a/config/miner.yaml",
+    "registered_at": "2026-08-18T23:58:05Z",
+    "total_requests_served": 65,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:53Z",
+    "scores": [
+      {
+        "intent_id": "URL_SCAN",
+        "epoch_id": 314,
+        "rank": 6,
+        "score": 3.3104186e-10,
+        "scored_at": "2026-09-07T09:17:53.477982Z"
+      }
+    ]
+  },
+  {
     "id": "7322",
     "slug": "finwire-tvl",
     "kind": "miner",
@@ -8559,6 +8717,136 @@
     ]
   },
   {
+    "id": "7334",
+    "slug": "netwire-url-scan",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "NetWire URL Scan",
+    "description": "A keyless read-only safety and health read of a URL. It does one manual-redirect request to the address the caller supplies and reports the status code, whether the URL is https, any redirect Location, the server and content-type headers and whether the host resolved. It also checks the public crt.sh transparency logs for the host as a light reputation signal. This is honest about its scope: it is a live reachability, TLS and redirect scan, not a malware verdict, because every keyless blocklist feed needs an API key. No port scanning, no path probing, only the single request to the address named.\n",
+    "endpoints": [
+      {
+        "path": "/url-scan",
+        "method": "GET",
+        "description": "Scan for one URL, the URL as a query parameter (?url=https://example.com). Also accepts a whole question in ?query=.\n"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "question": {
+          "description": "The full natural-language question, verbatim, for example \"Is https://example.com up and safe?\". The miner reads the URL from it, so passing the whole question works as well as naming the URL.\n",
+          "type": "string"
+        },
+        "url": {
+          "description": "Absolute URL to scan, for example https://example.com. A bare host works too.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "as_of": {
+          "description": "ISO 8601 timestamp of the read.",
+          "type": "string"
+        },
+        "confidence": {
+          "description": "0.95 for a reachable URL, 0.9 when the host did not respond.",
+          "type": "number"
+        },
+        "content_type": {
+          "description": "Content-Type header of the response.",
+          "type": "string"
+        },
+        "crt_sh_records": {
+          "description": "Count of unexpired certificates for the host in the crt.sh transparency logs.",
+          "type": "integer"
+        },
+        "final_url": {
+          "description": "Redirect target when the response is a redirect, else the URL that answered.",
+          "type": "string"
+        },
+        "host_resolves": {
+          "description": "Whether the host resolved and a connection could be made.",
+          "type": "boolean"
+        },
+        "https": {
+          "description": "Whether the URL uses https.",
+          "type": "boolean"
+        },
+        "reachable": {
+          "description": "Whether the host responded to a live request.",
+          "type": "boolean"
+        },
+        "redirect_location": {
+          "description": "The Location header when the response is a redirect.",
+          "type": "string"
+        },
+        "server": {
+          "description": "Server header of the response.",
+          "type": "string"
+        },
+        "status_code": {
+          "description": "HTTP status code of the immediate response.",
+          "type": "integer"
+        },
+        "summary": {
+          "description": "One sentence on reachability, https, status and redirect, then a Readings block.",
+          "type": "string"
+        },
+        "tls_valid": {
+          "description": "Whether an https handshake completed against a currently valid chain.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "The URL the answer refers to.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "summary",
+      "reason_field": "summary"
+    },
+    "supported_intents": [
+      "URL_SCAN"
+    ],
+    "docs": {
+      "documentation": "https://telegraph-net.margyn.workers.dev/"
+    },
+    "limitations": [
+      {
+        "code": "MAX_PARAM_VALUE",
+        "message": "url is an absolute http or https URL such as https://example.com. A bare host works too and https is assumed. A whole question is accepted, the URL is read from it.",
+        "param": "url",
+        "property": "length",
+        "value_num": 2048,
+        "operator": "lte"
+      }
+    ],
+    "base_url": "https://telegraph-net.margyn.workers.dev",
+    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmQqQ3BFbB71pqXXaW39NFtGeYbykmqmqRCxhknytn5HGX",
+    "registered_at": "2026-08-30T18:04:39Z",
+    "total_requests_served": 57,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:53Z",
+    "scores": [
+      {
+        "intent_id": "URL_SCAN",
+        "epoch_id": 314,
+        "rank": 3,
+        "score": 0.0024456766,
+        "scored_at": "2026-09-07T09:17:53.477982Z"
+      }
+    ]
+  },
+  {
     "id": "210",
     "slug": "gnews",
     "kind": "miner",
@@ -8914,136 +9202,6 @@
     ]
   },
   {
-    "id": "7334",
-    "slug": "netwire-url-scan",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "NetWire URL Scan",
-    "description": "A keyless read-only safety and health read of a URL. It does one manual-redirect request to the address the caller supplies and reports the status code, whether the URL is https, any redirect Location, the server and content-type headers and whether the host resolved. It also checks the public crt.sh transparency logs for the host as a light reputation signal. This is honest about its scope: it is a live reachability, TLS and redirect scan, not a malware verdict, because every keyless blocklist feed needs an API key. No port scanning, no path probing, only the single request to the address named.\n",
-    "endpoints": [
-      {
-        "path": "/url-scan",
-        "method": "GET",
-        "description": "Scan for one URL, the URL as a query parameter (?url=https://example.com). Also accepts a whole question in ?query=.\n"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "question": {
-          "description": "The full natural-language question, verbatim, for example \"Is https://example.com up and safe?\". The miner reads the URL from it, so passing the whole question works as well as naming the URL.\n",
-          "type": "string"
-        },
-        "url": {
-          "description": "Absolute URL to scan, for example https://example.com. A bare host works too.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "as_of": {
-          "description": "ISO 8601 timestamp of the read.",
-          "type": "string"
-        },
-        "confidence": {
-          "description": "0.95 for a reachable URL, 0.9 when the host did not respond.",
-          "type": "number"
-        },
-        "content_type": {
-          "description": "Content-Type header of the response.",
-          "type": "string"
-        },
-        "crt_sh_records": {
-          "description": "Count of unexpired certificates for the host in the crt.sh transparency logs.",
-          "type": "integer"
-        },
-        "final_url": {
-          "description": "Redirect target when the response is a redirect, else the URL that answered.",
-          "type": "string"
-        },
-        "host_resolves": {
-          "description": "Whether the host resolved and a connection could be made.",
-          "type": "boolean"
-        },
-        "https": {
-          "description": "Whether the URL uses https.",
-          "type": "boolean"
-        },
-        "reachable": {
-          "description": "Whether the host responded to a live request.",
-          "type": "boolean"
-        },
-        "redirect_location": {
-          "description": "The Location header when the response is a redirect.",
-          "type": "string"
-        },
-        "server": {
-          "description": "Server header of the response.",
-          "type": "string"
-        },
-        "status_code": {
-          "description": "HTTP status code of the immediate response.",
-          "type": "integer"
-        },
-        "summary": {
-          "description": "One sentence on reachability, https, status and redirect, then a Readings block.",
-          "type": "string"
-        },
-        "tls_valid": {
-          "description": "Whether an https handshake completed against a currently valid chain.",
-          "type": "boolean"
-        },
-        "url": {
-          "description": "The URL the answer refers to.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "summary",
-      "reason_field": "summary"
-    },
-    "supported_intents": [
-      "URL_SCAN"
-    ],
-    "docs": {
-      "documentation": "https://telegraph-net.margyn.workers.dev/"
-    },
-    "limitations": [
-      {
-        "code": "MAX_PARAM_VALUE",
-        "message": "url is an absolute http or https URL such as https://example.com. A bare host works too and https is assumed. A whole question is accepted, the URL is read from it.",
-        "param": "url",
-        "property": "length",
-        "value_num": 2048,
-        "operator": "lte"
-      }
-    ],
-    "base_url": "https://telegraph-net.margyn.workers.dev",
-    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmQqQ3BFbB71pqXXaW39NFtGeYbykmqmqRCxhknytn5HGX",
-    "registered_at": "2026-08-30T18:04:39Z",
-    "total_requests_served": 51,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:53Z",
-    "scores": [
-      {
-        "intent_id": "URL_SCAN",
-        "epoch_id": 314,
-        "rank": 3,
-        "score": 0.0024456766,
-        "scored_at": "2026-09-07T09:17:53.477982Z"
-      }
-    ]
-  },
-  {
     "id": "209",
     "slug": "newsapi",
     "kind": "miner",
@@ -9235,164 +9393,6 @@
         "rank": 2,
         "score": 0,
         "scored_at": "2026-09-07T09:17:45.350868Z"
-      }
-    ]
-  },
-  {
-    "id": "95822412",
-    "slug": "refut-onchain-risk",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "Refut On-Chain Risk",
-    "description": "Deterministic on-chain control-risk signals for an EVM subject — contract vs externally-owned account, upgradeability (EIP-1967 proxy), privileged admin/owner control, and pause capability — returned as an ALLOW / RECHECK / BLOCK verdict with a 0–1 confidence and plain reasoning. An ALLOW reports the checks run; it never asserts a subject is safe.\n",
-    "endpoints": [
-      {
-        "path": "/assess",
-        "method": "POST",
-        "description": "Assess on-chain control risk for an EVM subject address."
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "address": {
-          "pattern": "^0x[0-9a-fA-F]{40}$",
-          "type": "string"
-        },
-        "chainId": {
-          "description": "1 (Ethereum), 8453 (Base), or 84532 (Base Sepolia). Defaults to 1.",
-          "type": "integer"
-        }
-      },
-      "required": [
-        "address"
-      ],
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "confidence": {
-          "type": "number"
-        },
-        "reasoning": {
-          "type": "string"
-        },
-        "verdict": {
-          "enum": [
-            "ALLOW",
-            "RECHECK",
-            "BLOCK"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "verdict",
-        "confidence",
-        "reasoning"
-      ],
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "verdict",
-      "reason_field": "reasoning"
-    },
-    "supported_intents": [
-      "FRAUD_DETECTION"
-    ],
-    "docs": {
-      "repository": "https://github.com/winsznx/refut"
-    },
-    "base_url": "https://refut-fraud-miner.timjosh507.workers.dev",
-    "wallet_address": "0xf97933df45eb549a51ce4c4e76130c61d08f1ab5",
-    "fee_address": "0xf97933df45eb549a51ce4c4e76130c61d08f1ab5",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmNd1d6cBeikc84eK64VbuKWgDM6NJ9FnHPxzHsY5bwyrF",
-    "registered_at": "2026-08-30T23:24:09Z",
-    "total_requests_served": 46,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:07:13Z",
-    "scores": [
-      {
-        "intent_id": "FRAUD_DETECTION",
-        "epoch_id": 314,
-        "rank": 10,
-        "score": 0,
-        "scored_at": "2026-09-07T09:07:13.81189Z"
-      }
-    ]
-  },
-  {
-    "id": "5001",
-    "slug": "url-sentinel",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "URL Sentinel",
-    "description": "Multi-signal URL safety scanner. Combines a real-time malware/phishing URL feed (URLhaus) with native DNS, TLS certificate, and redirect-chain analysis to produce a deterministic safe/suspicious/malicious verdict. No single upstream provider's downtime fully blocks a verdict.\n",
-    "endpoints": [
-      {
-        "path": "/scan",
-        "method": "POST",
-        "description": "Scan a URL and return a safe/suspicious/malicious verdict with confidence and reasoning.\n"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "url": {
-          "description": "The URL to analyze.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "url"
-      ],
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "confidence": {
-          "description": "0.0-1.0 confidence in the verdict.",
-          "type": "number"
-        },
-        "reason": {
-          "description": "Short human-readable explanation of the evidence used.",
-          "type": "string"
-        },
-        "verdict": {
-          "description": "One of \"safe\", \"suspicious\", \"malicious\", or \"unknown\".",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "verdict",
-      "reason_field": "reason"
-    },
-    "supported_intents": [
-      "URL_SCAN"
-    ],
-    "base_url": "https://telegraph-url-scan-miner.onrender.com",
-    "wallet_address": "0x98ec4d722048eb7cf6386c8f5c9757e9b0143f8c",
-    "fee_address": "0x98ec4d722048eb7cf6386c8f5c9757e9b0143f8c",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://raw.githubusercontent.com/egbujor-emmanuel/telegraph-url-scan-miner/24e037a/config/miner.yaml",
-    "registered_at": "2026-08-18T23:58:05Z",
-    "total_requests_served": 43,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:53Z",
-    "scores": [
-      {
-        "intent_id": "URL_SCAN",
-        "epoch_id": 314,
-        "rank": 6,
-        "score": 3.3104186e-10,
-        "scored_at": "2026-09-07T09:17:53.477982Z"
       }
     ]
   },
@@ -10114,6 +10114,139 @@
         "rank": 2,
         "score": 0,
         "scored_at": "2026-09-07T09:07:31.554302Z"
+      }
+    ]
+  },
+  {
+    "id": "118",
+    "slug": "bedrock-kimi",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Kimi (Bedrock)",
+    "description": "Moonshot Kimi — long-context chat, no web search. 262K context. Served by the Telegraph node's managed inference backend (AWS Bedrock), exposed as a single-model integration.\n",
+    "endpoints": [
+      {
+        "path": "/chat",
+        "method": "POST",
+        "description": "OpenAI-compatible chat completion served by kimi."
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "max_tokens": {
+          "description": "Maximum completion tokens.",
+          "type": "integer"
+        },
+        "messages": {
+          "description": "Conversation messages array.",
+          "items": {
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "system",
+                  "user",
+                  "assistant"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "model": {
+          "description": "Model ID: kimi.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "messages",
+        "model"
+      ],
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "choices": {
+          "items": {
+            "properties": {
+              "finish_reason": {
+                "type": "string"
+              },
+              "message": {
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "usage": {
+          "properties": {
+            "completion_tokens": {
+              "type": "integer"
+            },
+            "prompt_tokens": {
+              "type": "integer"
+            },
+            "total_tokens": {
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "label_field": "choices"
+    },
+    "supported_intents": [
+      "CHAT_COMPLETION",
+      "LANGUAGE_GENERATION",
+      "TASK_COMPLETION",
+      "AGENT_TASK"
+    ],
+    "base_url": "http://127.0.0.1:4000/v1",
+    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "http://127.0.0.1:8099/bedrock-kimi.yaml",
+    "registered_at": "2026-08-07T18:51:24Z",
+    "total_requests_served": 31,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:13:17Z",
+    "scores": [
+      {
+        "intent_id": "CHAT_COMPLETION",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.9967559,
+        "scored_at": "2026-09-07T09:09:57.49785Z"
+      },
+      {
+        "intent_id": "LANGUAGE_GENERATION",
+        "epoch_id": 314,
+        "rank": 5,
+        "score": 0.9986159,
+        "scored_at": "2026-09-07T09:13:17.03177Z"
       }
     ]
   },
@@ -10891,6 +11024,124 @@
     ]
   },
   {
+    "id": "7332",
+    "slug": "netwire-ssl",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "NetWire SSL Verification",
+    "description": "Validity of a domain's TLS certificate, read live at request time. A Cloudflare Worker cannot read the raw peer certificate off the socket, so this combines two keyless read-only signals. A live HTTPS request confirms the handshake completes against a currently valid chain. The public crt.sh certificate transparency logs give the most recent certificate's issuer and validity window. Answers the SSL_VERIFICATION intent with whether HTTPS connects, the issuer, the expiry date and the days remaining. No API key, nothing cached that can go stale, no port scanning or intrusive checks.\n",
+    "endpoints": [
+      {
+        "path": "/ssl-check",
+        "method": "GET",
+        "description": "Certificate check for one domain, the domain as a query parameter (?domain=example.com). Also accepts a whole question in ?query= or a full URL in ?url=.\n"
+      }
+    ],
+    "input_schema": {
+      "properties": {
+        "domain": {
+          "description": "Hostname to check, for example example.com. A full URL works too, the host is read from it.",
+          "type": "string"
+        },
+        "question": {
+          "description": "The full natural-language question, verbatim, for example \"Is the TLS certificate for example.com valid?\". The miner reads the domain from it, so passing the whole question works as well as naming the domain.\n",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "output_schema": {
+      "properties": {
+        "as_of": {
+          "description": "ISO 8601 timestamp of the read.",
+          "type": "string"
+        },
+        "confidence": {
+          "description": "0.96 when both signals agree, 0.9 when only one is available.",
+          "type": "number"
+        },
+        "days_remaining": {
+          "description": "Whole days between now and the certificate expiry.",
+          "type": "integer"
+        },
+        "domain": {
+          "description": "The hostname the answer refers to.",
+          "type": "string"
+        },
+        "https_reachable": {
+          "description": "Whether a live HTTPS request to the domain completed its handshake.",
+          "type": "boolean"
+        },
+        "issuer": {
+          "description": "Certificate issuer organisation, from the crt.sh transparency logs.",
+          "type": "string"
+        },
+        "not_after": {
+          "description": "End of the certificate validity window (expiry).",
+          "type": "string"
+        },
+        "not_before": {
+          "description": "Start of the certificate validity window.",
+          "type": "string"
+        },
+        "serial": {
+          "description": "Certificate serial number when the transparency log records it.",
+          "type": "string"
+        },
+        "summary": {
+          "description": "One sentence on validity, issuer and expiry, then a Readings block with every value.",
+          "type": "string"
+        },
+        "valid": {
+          "description": "Whether the certificate is currently valid, from the live handshake and the transparency logs.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "label_field": "summary",
+      "reason_field": "summary"
+    },
+    "supported_intents": [
+      "SSL_VERIFICATION"
+    ],
+    "docs": {
+      "documentation": "https://telegraph-net.margyn.workers.dev/"
+    },
+    "limitations": [
+      {
+        "code": "MAX_PARAM_VALUE",
+        "message": "domain is a hostname such as example.com or github.com. A full URL or a whole question is accepted too, the host is read from it.",
+        "param": "domain",
+        "property": "length",
+        "value_num": 253,
+        "operator": "lte"
+      }
+    ],
+    "base_url": "https://telegraph-net.margyn.workers.dev",
+    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmYU7H3mavQp5S7wcqrkKoS2jRRG6KSrCPnLpSqe6N4txP",
+    "registered_at": "2026-08-30T18:04:31Z",
+    "total_requests_served": 27,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:07:21Z",
+    "scores": [
+      {
+        "intent_id": "SSL_VERIFICATION",
+        "epoch_id": 314,
+        "rank": 4,
+        "score": 0.008413754,
+        "scored_at": "2026-09-07T09:07:21.271351Z"
+      }
+    ]
+  },
+  {
     "id": "7326",
     "slug": "scholarwire-research-query",
     "kind": "miner",
@@ -10993,139 +11244,6 @@
         "rank": 4,
         "score": 0.0036440033,
         "scored_at": "2026-09-07T09:12:50.145761Z"
-      }
-    ]
-  },
-  {
-    "id": "118",
-    "slug": "bedrock-kimi",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "Kimi (Bedrock)",
-    "description": "Moonshot Kimi — long-context chat, no web search. 262K context. Served by the Telegraph node's managed inference backend (AWS Bedrock), exposed as a single-model integration.\n",
-    "endpoints": [
-      {
-        "path": "/chat",
-        "method": "POST",
-        "description": "OpenAI-compatible chat completion served by kimi."
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "max_tokens": {
-          "description": "Maximum completion tokens.",
-          "type": "integer"
-        },
-        "messages": {
-          "description": "Conversation messages array.",
-          "items": {
-            "properties": {
-              "content": {
-                "type": "string"
-              },
-              "role": {
-                "enum": [
-                  "system",
-                  "user",
-                  "assistant"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "role",
-              "content"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "model": {
-          "description": "Model ID: kimi.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "messages",
-        "model"
-      ],
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "choices": {
-          "items": {
-            "properties": {
-              "finish_reason": {
-                "type": "string"
-              },
-              "message": {
-                "properties": {
-                  "content": {
-                    "type": "string"
-                  },
-                  "role": {
-                    "type": "string"
-                  }
-                },
-                "type": "object"
-              }
-            },
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "usage": {
-          "properties": {
-            "completion_tokens": {
-              "type": "integer"
-            },
-            "prompt_tokens": {
-              "type": "integer"
-            },
-            "total_tokens": {
-              "type": "integer"
-            }
-          },
-          "type": "object"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "label_field": "choices"
-    },
-    "supported_intents": [
-      "CHAT_COMPLETION",
-      "LANGUAGE_GENERATION",
-      "TASK_COMPLETION",
-      "AGENT_TASK"
-    ],
-    "base_url": "http://127.0.0.1:4000/v1",
-    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
-    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "http://127.0.0.1:8099/bedrock-kimi.yaml",
-    "registered_at": "2026-08-07T18:51:24Z",
-    "total_requests_served": 25,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:13:17Z",
-    "scores": [
-      {
-        "intent_id": "CHAT_COMPLETION",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.9967559,
-        "scored_at": "2026-09-07T09:09:57.49785Z"
-      },
-      {
-        "intent_id": "LANGUAGE_GENERATION",
-        "epoch_id": 314,
-        "rank": 5,
-        "score": 0.9986159,
-        "scored_at": "2026-09-07T09:13:17.03177Z"
       }
     ]
   },
@@ -12082,6 +12200,77 @@
     ]
   },
   {
+    "id": "5893375",
+    "slug": "weerakorn-miner",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "weerakorn's Web Research Miner",
+    "description": "Evidence-aware web research and grounded text generation.",
+    "endpoints": [
+      {
+        "path": "/generate",
+        "method": "POST",
+        "description": "Generate a concise, source-backed answer from a prompt."
+      }
+    ],
+    "input_schema": null,
+    "output_schema": null,
+    "signal_mapping": {
+      "confidence_field": "confidence",
+      "reason_field": "ai_response"
+    },
+    "supported_intents": [
+      "TEXT_GENERATION",
+      "LANGUAGE_GENERATION",
+      "WEB_SEARCH",
+      "RESEARCH_SYNTHESIS"
+    ],
+    "docs": {
+      "repository": "https://github.com/Weerakorn-Leartsirisorn/telegraph-miner-node"
+    },
+    "base_url": "https://legwarmer-yearbook-symphonic.ngrok-free.dev",
+    "wallet_address": "0x63e4040220c53b4d07aa0c75523ac5e037edafd5",
+    "fee_address": "0x63e4040220c53b4d07aa0c75523ac5e037edafd5",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmcF3mMpkiPW3KJTVWsedG9NQPDLfKNpJWJRowceHWULmK",
+    "registered_at": "2026-08-30T07:42:27Z",
+    "total_requests_served": 23,
+    "scored": true,
+    "last_scored_epoch": 314,
+    "last_scored_at": "2026-09-07T09:17:35Z",
+    "scores": [
+      {
+        "intent_id": "RESEARCH_SYNTHESIS",
+        "epoch_id": 314,
+        "rank": 1,
+        "score": 0.007368519,
+        "scored_at": "2026-09-07T09:13:41.530635Z"
+      },
+      {
+        "intent_id": "LANGUAGE_GENERATION",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.99873585,
+        "scored_at": "2026-09-07T09:13:17.03177Z"
+      },
+      {
+        "intent_id": "TEXT_GENERATION",
+        "epoch_id": 314,
+        "rank": 2,
+        "score": 0.9951594,
+        "scored_at": "2026-09-07T09:10:55.637764Z"
+      },
+      {
+        "intent_id": "WEB_SEARCH",
+        "epoch_id": 314,
+        "rank": 5,
+        "score": 1.0000621e-11,
+        "scored_at": "2026-09-07T09:17:35.544585Z"
+      }
+    ]
+  },
+  {
     "id": "229",
     "slug": "openalex",
     "kind": "miner",
@@ -12261,77 +12450,6 @@
     ]
   },
   {
-    "id": "5893375",
-    "slug": "weerakorn-miner",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "weerakorn's Web Research Miner",
-    "description": "Evidence-aware web research and grounded text generation.",
-    "endpoints": [
-      {
-        "path": "/generate",
-        "method": "POST",
-        "description": "Generate a concise, source-backed answer from a prompt."
-      }
-    ],
-    "input_schema": null,
-    "output_schema": null,
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "reason_field": "ai_response"
-    },
-    "supported_intents": [
-      "TEXT_GENERATION",
-      "LANGUAGE_GENERATION",
-      "WEB_SEARCH",
-      "RESEARCH_SYNTHESIS"
-    ],
-    "docs": {
-      "repository": "https://github.com/Weerakorn-Leartsirisorn/telegraph-miner-node"
-    },
-    "base_url": "https://legwarmer-yearbook-symphonic.ngrok-free.dev",
-    "wallet_address": "0x63e4040220c53b4d07aa0c75523ac5e037edafd5",
-    "fee_address": "0x63e4040220c53b4d07aa0c75523ac5e037edafd5",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmcF3mMpkiPW3KJTVWsedG9NQPDLfKNpJWJRowceHWULmK",
-    "registered_at": "2026-08-30T07:42:27Z",
-    "total_requests_served": 21,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:17:35Z",
-    "scores": [
-      {
-        "intent_id": "RESEARCH_SYNTHESIS",
-        "epoch_id": 314,
-        "rank": 1,
-        "score": 0.007368519,
-        "scored_at": "2026-09-07T09:13:41.530635Z"
-      },
-      {
-        "intent_id": "LANGUAGE_GENERATION",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.99873585,
-        "scored_at": "2026-09-07T09:13:17.03177Z"
-      },
-      {
-        "intent_id": "TEXT_GENERATION",
-        "epoch_id": 314,
-        "rank": 2,
-        "score": 0.9951594,
-        "scored_at": "2026-09-07T09:10:55.637764Z"
-      },
-      {
-        "intent_id": "WEB_SEARCH",
-        "epoch_id": 314,
-        "rank": 5,
-        "score": 1.0000621e-11,
-        "scored_at": "2026-09-07T09:17:35.544585Z"
-      }
-    ]
-  },
-  {
     "id": "7320",
     "slug": "finwire-crypto-price",
     "kind": "miner",
@@ -12442,124 +12560,6 @@
         "rank": 9,
         "score": 2.693652e-39,
         "scored_at": "2026-09-07T09:10:53.809496Z"
-      }
-    ]
-  },
-  {
-    "id": "7332",
-    "slug": "netwire-ssl",
-    "kind": "miner",
-    "protocol": "generic",
-    "name": "NetWire SSL Verification",
-    "description": "Validity of a domain's TLS certificate, read live at request time. A Cloudflare Worker cannot read the raw peer certificate off the socket, so this combines two keyless read-only signals. A live HTTPS request confirms the handshake completes against a currently valid chain. The public crt.sh certificate transparency logs give the most recent certificate's issuer and validity window. Answers the SSL_VERIFICATION intent with whether HTTPS connects, the issuer, the expiry date and the days remaining. No API key, nothing cached that can go stale, no port scanning or intrusive checks.\n",
-    "endpoints": [
-      {
-        "path": "/ssl-check",
-        "method": "GET",
-        "description": "Certificate check for one domain, the domain as a query parameter (?domain=example.com). Also accepts a whole question in ?query= or a full URL in ?url=.\n"
-      }
-    ],
-    "input_schema": {
-      "properties": {
-        "domain": {
-          "description": "Hostname to check, for example example.com. A full URL works too, the host is read from it.",
-          "type": "string"
-        },
-        "question": {
-          "description": "The full natural-language question, verbatim, for example \"Is the TLS certificate for example.com valid?\". The miner reads the domain from it, so passing the whole question works as well as naming the domain.\n",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "output_schema": {
-      "properties": {
-        "as_of": {
-          "description": "ISO 8601 timestamp of the read.",
-          "type": "string"
-        },
-        "confidence": {
-          "description": "0.96 when both signals agree, 0.9 when only one is available.",
-          "type": "number"
-        },
-        "days_remaining": {
-          "description": "Whole days between now and the certificate expiry.",
-          "type": "integer"
-        },
-        "domain": {
-          "description": "The hostname the answer refers to.",
-          "type": "string"
-        },
-        "https_reachable": {
-          "description": "Whether a live HTTPS request to the domain completed its handshake.",
-          "type": "boolean"
-        },
-        "issuer": {
-          "description": "Certificate issuer organisation, from the crt.sh transparency logs.",
-          "type": "string"
-        },
-        "not_after": {
-          "description": "End of the certificate validity window (expiry).",
-          "type": "string"
-        },
-        "not_before": {
-          "description": "Start of the certificate validity window.",
-          "type": "string"
-        },
-        "serial": {
-          "description": "Certificate serial number when the transparency log records it.",
-          "type": "string"
-        },
-        "summary": {
-          "description": "One sentence on validity, issuer and expiry, then a Readings block with every value.",
-          "type": "string"
-        },
-        "valid": {
-          "description": "Whether the certificate is currently valid, from the live handshake and the transparency logs.",
-          "type": "boolean"
-        }
-      },
-      "type": "object"
-    },
-    "signal_mapping": {
-      "confidence_field": "confidence",
-      "label_field": "summary",
-      "reason_field": "summary"
-    },
-    "supported_intents": [
-      "SSL_VERIFICATION"
-    ],
-    "docs": {
-      "documentation": "https://telegraph-net.margyn.workers.dev/"
-    },
-    "limitations": [
-      {
-        "code": "MAX_PARAM_VALUE",
-        "message": "domain is a hostname such as example.com or github.com. A full URL or a whole question is accepted too, the host is read from it.",
-        "param": "domain",
-        "property": "length",
-        "value_num": 253,
-        "operator": "lte"
-      }
-    ],
-    "base_url": "https://telegraph-net.margyn.workers.dev",
-    "wallet_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "fee_address": "0x8b224783fe5b3c52b7db0cb9b1754f8812b75287",
-    "activation_status": "active",
-    "min_price_usdc": 10000,
-    "yaml_url": "https://gateway.pinata.cloud/ipfs/QmYU7H3mavQp5S7wcqrkKoS2jRRG6KSrCPnLpSqe6N4txP",
-    "registered_at": "2026-08-30T18:04:31Z",
-    "total_requests_served": 20,
-    "scored": true,
-    "last_scored_epoch": 314,
-    "last_scored_at": "2026-09-07T09:07:21Z",
-    "scores": [
-      {
-        "intent_id": "SSL_VERIFICATION",
-        "epoch_id": 314,
-        "rank": 4,
-        "score": 0.008413754,
-        "scored_at": "2026-09-07T09:07:21.271351Z"
       }
     ]
   },
@@ -18760,6 +18760,34 @@
         "scored_at": "2026-09-07T09:10:23.8694Z"
       }
     ]
+  },
+  {
+    "id": "2",
+    "slug": "kitesurf-scraper-demo",
+    "kind": "miner",
+    "protocol": "generic",
+    "name": "Kitesurf Scraper Demo",
+    "description": "Cloudflare Worker scraper auto-registered via telegraph-miner",
+    "endpoints": [
+      {
+        "path": "/answer",
+        "method": "POST",
+        "description": "Telegraph miner-plugin fixed wire contract."
+      }
+    ],
+    "input_schema": null,
+    "output_schema": null,
+    "supported_intents": [
+      "WEB_SEARCH"
+    ],
+    "base_url": "https://kitesurf-scraper-example.realumargujjar.workers.dev",
+    "wallet_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "fee_address": "0xffe89e1f0a77c600ad938b57180e5be3e3119f40",
+    "activation_status": "active",
+    "min_price_usdc": 10000,
+    "yaml_url": "https://kitesurf-scraper-example.realumargujjar.workers.dev/.well-known/telegraph.yaml",
+    "registered_at": "2026-09-07T12:55:17Z",
+    "scored": false
   },
   {
     "id": "42",

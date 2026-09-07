@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server';
 import { fetchLiveMiners } from '@/lib/telegraph/catalog';
 import { getTelegraphConfig } from '@/lib/telegraph/config';
+import { getRecentGateRuns } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+function observedLatencyByMiner(): Map<string, number> {
+  const map = new Map<string, number>();
+  const runs = getRecentGateRuns(50);
+  for (const run of runs) {
+    for (const receipt of run.receipts || []) {
+      if (typeof receipt.latencyMs === 'number' && receipt.latencyMs > 0) {
+        const prev = map.get(receipt.minerId);
+        map.set(receipt.minerId, prev ? Math.round((prev + receipt.latencyMs) / 2) : receipt.latencyMs);
+      }
+    }
+  }
+  return map;
+}
 
 export async function POST(request: Request) {
   try {
@@ -13,17 +29,15 @@ export async function POST(request: Request) {
     const allMiners = await fetchLiveMiners(true);
     const activeMiners = allMiners.filter((m) => m.activation_status === 'active');
     const config = getTelegraphConfig();
+    const latencies = observedLatencyByMiner();
 
-    // Categorize miners by intents
     const categorized = activeMiners.map((m) => {
       const intents = (m.supported_intents || []).map((i) => i.toUpperCase());
       const hasSecurity = intents.some((i) => i.includes('FRAUD') || i.includes('RISK') || i.includes('SECURITY'));
       const hasOnchain = intents.some((i) => i.includes('ONCHAIN') || i.includes('TX'));
       const hasState = intents.some((i) => i.includes('WALLET') || i.includes('BALANCE'));
-
-      // Approximate miner baseline reliability based on active status and fee structure
-      const baseReliability = m.activation_status === 'active' ? 0.92 : 0.4;
-      const avgLatencyMs = Math.floor(Math.random() * 800 + 400); // 400ms - 1200ms
+      const score = m.scores?.[0]?.score;
+      const observedLatency = latencies.get(m.id);
 
       return {
         id: m.id,
@@ -33,8 +47,8 @@ export async function POST(request: Request) {
         hasSecurity,
         hasOnchain,
         hasState,
-        baseReliability,
-        avgLatencyMs,
+        score: typeof score === 'number' ? score : null,
+        observedLatencyMs: observedLatency ?? null,
       };
     });
 
@@ -42,18 +56,14 @@ export async function POST(request: Request) {
 
     for (const conf of confidenceSteps) {
       for (const deadline of deadlineStepsMs) {
-        // Evaluate qualification:
-        // A miner qualifies if its estimated latency fits within deadline budget
-        // and its reliability meets or exceeds the confidence requirement.
-        const qualifiedMiners = categorized.filter(
-          (m) => m.avgLatencyMs <= deadline && m.baseReliability >= (conf * 0.8)
-        );
+        const qualifiedMiners = categorized.filter((m) => {
+          const meetsScore = m.score === null || m.score >= conf;
+          const meetsDeadline = m.observedLatencyMs === null || m.observedLatencyMs <= deadline;
+          return (m.hasSecurity || m.hasOnchain || m.hasState) && meetsScore && meetsDeadline;
+        });
 
-        // Security miner count in qualified set
         const securityMiners = qualifiedMiners.filter((m) => m.hasSecurity);
         const onchainMiners = qualifiedMiners.filter((m) => m.hasOnchain);
-
-        // Multi-intent diversity: requires at least 1 security + 1 other domain
         const hasMultiIntentCoverage = securityMiners.length > 0 && (onchainMiners.length > 0 || qualifiedMiners.length >= 2);
 
         let projectedVerdict: 'ALLOW' | 'WAIT' | 'BLOCK' = 'WAIT';
@@ -65,12 +75,9 @@ export async function POST(request: Request) {
         } else if (!hasMultiIntentCoverage) {
           projectedVerdict = 'WAIT';
           routingStatus = 'LACK_MULTI_INTENT_COVERAGE';
-        } else if (conf > 0.85 && deadline < 2000) {
-          projectedVerdict = 'WAIT';
-          routingStatus = 'TIGHT_DEADLINE_HIGH_CONFIDENCE_STARVATION';
         } else {
           projectedVerdict = 'ALLOW';
-          routingStatus = 'OPTIMAL_ROUTING_CONSENSUS';
+          routingStatus = 'LIVE_CATALOG_CONSENSUS_AVAILABLE';
         }
 
         sweepGrid.push({
@@ -81,6 +88,8 @@ export async function POST(request: Request) {
           multiIntentCoverage: hasMultiIntentCoverage,
           projectedVerdict,
           routingStatus,
+          projectionNote:
+            'Projected from the live catalog and observed receipt latencies. This cell does not dispatch paid asks.',
           topQualifiedMiners: qualifiedMiners.slice(0, 3).map((m) => ({
             id: m.id,
             name: m.name,
@@ -90,13 +99,14 @@ export async function POST(request: Request) {
       }
     }
 
-    // Determine optimal operating envelope
-    const optimalCell = sweepGrid.find(
-      (c) => c.projectedVerdict === 'ALLOW' && c.confidenceThreshold >= config.gateMinConfidence
-    ) || sweepGrid[0];
+    const optimalCell =
+      sweepGrid.find(
+        (c) => c.projectedVerdict === 'ALLOW' && c.confidenceThreshold >= config.gateMinConfidence
+      ) || sweepGrid[0];
 
     return NextResponse.json({
       success: true,
+      liveProjection: true,
       totalActiveMiners: activeMiners.length,
       currentConfigThreshold: config.gateMinConfidence,
       grid: sweepGrid,

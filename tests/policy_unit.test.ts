@@ -99,6 +99,73 @@ describe('Signalgate Fail-Closed Policy Unit Tests', () => {
     assert.match(result.reason, /Blocked: Live miner Veridex flagged critical risk/);
   });
 
+  test('Never ALLOW when payment did not settle, even for a well-known contract address', () => {
+    const receipt: MinerReceipt = {
+      minerId: 'engine-ask',
+      minerName: 'Telegraph Engine Router',
+      slug: 'engine-ask',
+      intent: 'AUTO_ROUTER',
+      endpoint: '/v1/ask',
+      method: 'POST',
+      paid: false,
+      priceUsdc: 0.01,
+      status: 'PAYMENT_REQUIRED',
+      latencyMs: 120,
+      timestamp: new Date().toISOString(),
+      rawResponse: fixtures.engine_402_challenge,
+      explorerMinerUrl: 'https://explorer.telegraphprotocol.com/signals',
+      explorerRequestId: 'no explorer id',
+      error: 'x402 Payment Required',
+    };
+
+    const result = evaluateGatePolicy(
+      '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      'Transfer 1,000 USDC to counterparty',
+      [receipt]
+    );
+    assert.strictEqual(result.verdict, 'WAIT');
+    assert.strictEqual(result.paymentSettled, false);
+    assert.notStrictEqual(result.verdict, 'ALLOW');
+  });
+
+  test('WAIT when successful miners omit numeric confidence', () => {
+    const receipt1: MinerReceipt = {
+      minerId: '1001',
+      minerName: 'Veridex',
+      slug: 'veridex-contract-risk-miner',
+      intent: 'FRAUD_DETECTION',
+      endpoint: '/analyze',
+      method: 'POST',
+      paid: true,
+      priceUsdc: 0.01,
+      status: 'SUCCESS',
+      latencyMs: 210,
+      timestamp: new Date().toISOString(),
+      rawResponse: { ok: true },
+      explorerMinerUrl: 'https://explorer.telegraphprotocol.com/miners/1001',
+      explorerRequestId: 'tx_0x111111111',
+    };
+    const receipt2: MinerReceipt = {
+      minerId: '10002',
+      minerName: 'DegenLens',
+      slug: 'degenlens-onchain',
+      intent: 'ONCHAIN_TX_LOOKUP',
+      endpoint: '/status',
+      method: 'POST',
+      paid: true,
+      priceUsdc: 0.01,
+      status: 'SUCCESS',
+      latencyMs: 190,
+      timestamp: new Date().toISOString(),
+      rawResponse: { ok: true },
+      explorerMinerUrl: 'https://explorer.telegraphprotocol.com/miners/10002',
+      explorerRequestId: 'tx_0x222222222',
+    };
+    const result = evaluateGatePolicy(targetWallet, actionText, [receipt1, receipt2]);
+    assert.strictEqual(result.verdict, 'WAIT');
+    assert.match(result.reason, /numeric confidence/);
+  });
+
   test('Constraint: Clean responses from 2+ distinct paid miners above threshold must ALLOW', () => {
     const receipt1: MinerReceipt = {
       minerId: '1001',
@@ -207,11 +274,11 @@ describe('Signalgate Fail-Closed Policy Unit Tests', () => {
     assert.ok(found, 'Executed action must be recorded in ledger');
   });
 
-  test('Flywheel: Live miner requests stats and progress calculation', () => {
+  test('Usage stats: live miner request counters exist without a volume target', () => {
     const stats = getFlywheelStats();
     assert.ok(typeof stats.totalAsksDispatched === 'number');
     assert.ok(typeof stats.totalGateRuns === 'number');
-    assert.strictEqual(stats.targetFlywheelGoal, 100);
+    assert.ok(!('targetFlywheelGoal' in stats));
   });
 });
 

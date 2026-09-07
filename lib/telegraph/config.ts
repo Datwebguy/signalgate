@@ -1,5 +1,8 @@
 import { config as loadDotenv } from 'dotenv';
-loadDotenv();
+
+if (!process.env.VERCEL) {
+  loadDotenv();
+}
 
 export interface TelegraphConfig {
   nodeUrl: string;

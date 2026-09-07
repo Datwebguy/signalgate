@@ -3,7 +3,7 @@ import type { Miner } from './types';
 
 let cachedMiners: Miner[] | null = null;
 let lastFetchTime = 0;
-const CACHE_TTL_MS = 30000; // 30s cache to stay fresh with live catalog
+const CACHE_TTL_MS = 30000;
 
 export async function fetchLiveMiners(forceRefresh = false): Promise<Miner[]> {
   const now = Date.now();
@@ -26,7 +26,9 @@ export async function fetchLiveMiners(forceRefresh = false): Promise<Miner[]> {
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch live miner catalog from Telegraph: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `Failed to fetch live miner catalog from Telegraph: ${res.status} ${res.statusText}`
+      );
     }
 
     const data = (await res.json()) as Miner[];
@@ -36,52 +38,17 @@ export async function fetchLiveMiners(forceRefresh = false): Promise<Miner[]> {
 
     cachedMiners = data;
     lastFetchTime = now;
-
-    // Persist snapshot in background for resilience
-    import('node:fs').then((fs) => {
-      import('node:path').then((path) => {
-        try {
-          const snapshotPath = path.resolve(process.cwd(), 'data', 'catalog_snapshot.json');
-          fs.writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
-        } catch {
-          // ignore
-        }
-      });
-    }).catch(() => {});
-
     return data;
   } catch (err) {
-    if (cachedMiners && cachedMiners.length > 0) {
-      console.warn('[Telegraph Catalog] Live fetch failed, serving from active memory cache');
-      return cachedMiners;
-    }
-    try {
-      const fs = await import('node:fs');
-      const path = await import('node:path');
-      const snapshotPath = path.resolve(process.cwd(), 'data', 'catalog_snapshot.json');
-      if (fs.existsSync(snapshotPath)) {
-        const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
-        if (Array.isArray(snapshot) && snapshot.length > 0) {
-          cachedMiners = snapshot;
-          return snapshot;
-        }
-      }
-    } catch {
-      // fallback
-    }
+    cachedMiners = null;
+    lastFetchTime = 0;
     throw err;
   } finally {
     clearTimeout(timeout);
   }
 }
 
-/**
- * Discovers miners dynamically from the live catalog without assuming fixed intents.
- * Examines each live miner's advertised supported_intents, description, and endpoints.
- */
-export async function discoverMinersForAction(
-  userText: string
-): Promise<{
+export async function discoverMinersForAction(userText: string): Promise<{
   activeMiners: Miner[];
   discoveredIntents: string[];
   matchedMiners: Miner[];
@@ -98,13 +65,11 @@ export async function discoverMinersForAction(
 
   const queryTerms = userText.toLowerCase();
 
-  // Score miners based on runtime advertised capabilities and text relevance
   const matchedMiners = activeMiners.filter((m) => {
     const intents = (m.supported_intents || []).map((i) => i.toLowerCase()).join(' ');
     const desc = (m.description || '').toLowerCase();
     const name = (m.name || '').toLowerCase();
 
-    // Look for risk/security/fraud/wallet capabilities or matches to user text
     const hasRiskIntent =
       intents.includes('fraud') ||
       intents.includes('risk') ||
@@ -112,9 +77,9 @@ export async function discoverMinersForAction(
       intents.includes('onchain') ||
       intents.includes('tx');
 
-    const matchesQuery = queryTerms.split(/\s+/).some(
-      (term) => term.length > 3 && (desc.includes(term) || name.includes(term) || intents.includes(term))
-    );
+    const matchesQuery = queryTerms
+      .split(/\s+/)
+      .some((term) => term.length > 3 && (desc.includes(term) || name.includes(term) || intents.includes(term)));
 
     return hasRiskIntent || matchesQuery;
   });

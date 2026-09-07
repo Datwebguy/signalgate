@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      WATCHLIST_WORKER: "1"
+    volumes:
+      - signalgate-data:/app/data
+
+volumes:
+  signalgate-data:

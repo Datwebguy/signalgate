@@ -120,5 +120,4 @@ export interface FlywheelStats {
   totalGateRuns: number;
   uniqueAddressesMonitored: number;
   activeMinersEngaged: number;
-  targetFlywheelGoal: number; // 100
 }

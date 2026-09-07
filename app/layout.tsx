@@ -4,6 +4,10 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Signalgate — Autonomous Pre-Action Risk Protocol',
   description: 'Actions do not fire until live Telegraph miners agree. Decentralized, multi-miner pre-action risk firewall and consensus verification for Web3 & AI agents.',
+  icons: {
+    icon: [{ url: '/favicon.png', type: 'image/png' }, { url: '/logo.png', type: 'image/png' }],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({

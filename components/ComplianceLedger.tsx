@@ -68,7 +68,7 @@ export default function ComplianceLedger() {
             </span>
           </div>
           <p className="text-xs text-gray-400 max-w-2xl">
-            Signalgate actively acts on verified signals: on BLOCK, it locks downstream execution and quarantines counterparties; on ALLOW, it transitions approved intents to execution.
+            After a live gate, BLOCK quarantines that address in this instance; ALLOW is approved-for-broadcast only. Signalgate never signs a tx. Rows from old hardcoded allowlists are not current policy.
           </p>
         </div>
 
@@ -204,7 +204,7 @@ export default function ComplianceLedger() {
                               : 'bg-rose-500/15 border-rose-500/40 text-rose-400'
                           }`}
                         >
-                          {act.status === 'EXECUTED' ? 'APPROVED & EXECUTED' : 'COMPLIANCE HALT'}
+                          {act.status === 'EXECUTED' ? 'APPROVED FOR BROADCAST' : 'COMPLIANCE HALT'}
                         </span>
                       </td>
                       <td className="p-3.5 text-gray-400 font-mono text-[11px]">

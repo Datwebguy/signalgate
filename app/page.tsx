@@ -38,7 +38,6 @@ import {
   Share2,
 } from 'lucide-react';
 import type { GateRunResult, WatchlistEntry, MinerReceipt } from '@/lib/telegraph/types';
-import FlywheelBanner from '@/components/FlywheelBanner';
 import LiveSignalStream from '@/components/LiveSignalStream';
 import RoutingExperiments from '@/components/RoutingExperiments';
 import ComplianceLedger from '@/components/ComplianceLedger';
@@ -51,9 +50,9 @@ export default function Home() {
 
   // Gate execution state
   const [address, setAddress] = useState('');
-  const [actionText, setActionText] = useState('Transfer 1,000 USDC to counterparty');
+  const [actionText, setActionText] = useState('');
   const [minConfidence, setMinConfidence] = useState<number>(0.6);
-  const [deadlineMs, setDeadlineMs] = useState<number>(5000);
+  const [deadlineMs, setDeadlineMs] = useState<number>(20000);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState(false);
   const [currentRun, setCurrentRun] = useState<GateRunResult | null>(null);
@@ -86,6 +85,19 @@ export default function Home() {
   const [expandedReceipts, setExpandedReceipts] = useState<Record<string, boolean>>({});
   const [copiedCodeTab, setCopiedCodeTab] = useState(false);
   const [activeDevTab, setActiveDevTab] = useState<'curl' | 'ts' | 'python'>('curl');
+  const [appOrigin, setAppOrigin] = useState('http://localhost:3000');
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const minerCount = catalog.length || status?.catalog?.activeMiners || 0;
+  const navItems: { id: typeof activeView; label: string; icon: typeof Shield }[] = [
+    { id: 'console', label: 'Firewall', icon: Shield },
+    { id: 'catalog', label: 'Catalog', icon: Cpu },
+    { id: 'watchlist', label: 'Watchlist', icon: Eye },
+    { id: 'stream', label: 'Stream', icon: Radio },
+    { id: 'experiments', label: 'Routing', icon: Sliders },
+    { id: 'history', label: 'Audit', icon: Clock },
+    { id: 'compliance', label: 'Halt Ledger', icon: Lock },
+  ];
 
   const toggleExpandReceipt = (id: string) => {
     setExpandedReceipts((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -119,21 +131,31 @@ export default function Home() {
     }
   };
 
+  const [auditRefreshing, setAuditRefreshing] = useState(false);
+  const [auditError, setAuditError] = useState<string | null>(null);
+
   const loadAuditData = async () => {
+    setAuditRefreshing(true);
+    setAuditError(null);
     try {
       const [hRes, qRes, aRes] = await Promise.all([
-        fetch('/api/gate/history'),
-        fetch('/api/compliance/quarantine'),
-        fetch('/api/compliance/actions'),
+        fetch('/api/gate/history', { cache: 'no-store' }),
+        fetch('/api/compliance/quarantine', { cache: 'no-store' }),
+        fetch('/api/compliance/actions', { cache: 'no-store' }),
       ]);
       const hData = await hRes.json();
       const qData = await qRes.json();
       const aData = await aRes.json();
+      if (!hRes.ok || hData.success === false) {
+        setAuditError(hData.error || 'Audit history request failed');
+      }
       if (hData.success) setHistory(hData.data || []);
       if (qData.success) setQuarantined(qData.quarantined || []);
       if (aData.success) setExecutedActions(aData.actions || []);
-    } catch (err) {
-      console.error('Failed to fetch audit data:', err);
+    } catch (err: any) {
+      setAuditError(err.message || 'Failed to fetch audit data');
+    } finally {
+      setAuditRefreshing(false);
     }
   };
 
@@ -176,6 +198,24 @@ export default function Home() {
     loadWatchlist();
     loadAuditData();
     loadCatalog();
+    if (typeof window !== 'undefined') {
+      setAppOrigin(window.location.origin);
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get('view') as typeof activeView | null;
+      const runId = params.get('run');
+      if (view) setActiveView(view);
+      if (runId) {
+        fetch(`/api/gate/${encodeURIComponent(runId)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              setCurrentRun(data.data);
+              setActiveView('console');
+            }
+          })
+          .catch(() => {});
+      }
+    }
     const interval = setInterval(() => {
       refreshStatus();
       loadWatchlist();
@@ -212,6 +252,12 @@ export default function Home() {
         setCurrentRun(data.data);
         loadAuditData();
         loadWatchlist();
+        if (typeof window !== 'undefined' && data.data?.runId) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('run', data.data.runId);
+          url.searchParams.set('view', 'console');
+          window.history.replaceState({}, '', url.toString());
+        }
       } else {
         setErrorMsg(data.error || 'Failed to execute gate run');
       }
@@ -258,6 +304,27 @@ export default function Home() {
     }
   };
 
+  const handlePollWatchlist = async () => {
+    setIsPollingWatchlist(true);
+    try {
+      await fetch('/api/watchlist/poll', { method: 'POST' });
+      await loadWatchlist();
+      await loadAuditData();
+    } catch (err) {
+      console.error('Failed to poll watchlist:', err);
+    } finally {
+      setIsPollingWatchlist(false);
+    }
+  };
+
+  const copyShareLink = async () => {
+    if (!currentRun?.runId || typeof window === 'undefined') return;
+    const url = `${window.location.origin}/?run=${encodeURIComponent(currentRun.runId)}&view=console`;
+    await navigator.clipboard.writeText(url);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  };
+
   // Filtered catalog
   const filteredCatalog = catalog.filter((m) => {
     const q = catalogSearch.toLowerCase();
@@ -281,9 +348,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveView('landing')}>
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shadow-md shadow-emerald-500/10">
-                <Shield className="w-4 h-4 text-emerald-400" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="Signalgate"
+                className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.35)]"
+              />
               <div className="flex items-center gap-2">
                 <span className="font-extrabold tracking-wider text-base text-white">SIGNALGATE</span>
                 <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
@@ -296,40 +365,25 @@ export default function Home() {
               <>
                 <div className="h-5 w-px bg-[#1f2638] hidden sm:block" />
 
-                <nav className="flex items-center gap-1 sm:gap-2">
-                  <button
-                    onClick={() => setActiveView('console')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'console'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Risk Firewall</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveView('stream')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'stream'
-                        ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-                    <span>Live Stream</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveView('history')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
-                      activeView === 'history'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Audit Log</span>
-                  </button>
+                <nav className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = activeView === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveView(item.id)}
+                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
+                          active
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <Icon className={`w-3.5 h-3.5 ${item.id === 'stream' && active ? 'animate-pulse text-cyan-400' : ''}`} />
+                        <span className="hidden lg:inline">{item.label}</span>
+                      </button>
+                    );
+                  })}
                 </nav>
               </>
             )}
@@ -362,8 +416,8 @@ export default function Home() {
               <>
                 <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-400 font-mono">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="hidden sm:inline">{catalog.length || 131} Miners Online</span>
-                  <span className="sm:hidden">131 Live</span>
+                  <span className="hidden sm:inline">{minerCount} Miners Online</span>
+                  <span className="sm:hidden">{minerCount} Live</span>
                 </div>
                 <button
                   onClick={() => setActiveView('landing')}
@@ -414,7 +468,7 @@ export default function Home() {
                     className="px-6 py-3.5 rounded-lg bg-[#121620] hover:bg-[#1a202e] text-white border border-[#22293a] font-bold text-sm tracking-wider transition-colors flex items-center gap-2"
                   >
                     <Cpu className="w-4 h-4 text-emerald-400" />
-                    <span>Inspect 130+ Live Miners</span>
+                    <span>Inspect Live Miners</span>
                   </button>
                 </div>
 
@@ -422,7 +476,7 @@ export default function Home() {
                 <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left font-mono">
                   <div className="bg-[#0b0e15]/80 border border-[#1b2230] p-4 rounded-lg">
                     <div className="text-[11px] text-gray-400 uppercase tracking-wider">Live Miners</div>
-                    <div className="text-2xl font-bold text-emerald-400 mt-1">{catalog.length || 131}+ Active</div>
+                    <div className="text-2xl font-bold text-emerald-400 mt-1">{minerCount}+ Active</div>
                     <div className="text-[10px] text-gray-500 mt-0.5">Discovered runtime</div>
                   </div>
                   <div className="bg-[#0b0e15]/80 border border-[#1b2230] p-4 rounded-lg">
@@ -651,28 +705,31 @@ export default function Home() {
                   onClick={() => {
                     const code =
                       activeDevTab === 'curl'
-                        ? `curl -X POST http://localhost:3000/api/gate/run \\
+                        ? `curl -X POST ${appOrigin}/api/gate/run \\
   -H "Content-Type: application/json" \\
-  -d '{"address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", "action": "Swap 10 ETH on Uniswap"}'`
+  -d '{"address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", "action": "Swap 10 ETH on Uniswap", "minConfidence": 0.6, "deadlineMs": 8000}'`
                         : activeDevTab === 'ts'
-                        ? `import { executeGateRun } from '@/lib/gate/runner';
-
-// Pre-action risk check
-const result = await executeGateRun(
-  '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
-  'Swap 10 ETH on Uniswap'
-);
-
-if (result.verdict !== 'ALLOW') {
-  throw new Error(\`Gate blocked execution: \${result.reason}\`);
+                        ? `const res = await fetch('${appOrigin}/api/gate/run', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    address: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+    action: 'Swap 10 ETH on Uniswap',
+    minConfidence: 0.6,
+    deadlineMs: 8000,
+  }),
+});
+const { data } = await res.json();
+if (data.verdict !== 'ALLOW') {
+  throw new Error(\`Gate blocked: \${data.reason}\`);
 }`
                         : `import requests
 
-# Pre-action risk check for AI agents & bots
-res = requests.post("http://localhost:3000/api/gate/run", json={
+res = requests.post("${appOrigin}/api/gate/run", json={
     "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
     "action": "Swap 10 ETH on Uniswap",
-    "minConfidence": 0.6
+    "minConfidence": 0.6,
+    "deadlineMs": 8000
 })
 data = res.json()
 if data.get("data", {}).get("verdict") != "ALLOW":
@@ -686,27 +743,30 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                 </button>
 
                 <pre className="bg-[#05070a] p-4 sm:p-6 rounded-lg text-xs font-mono text-gray-300 overflow-x-auto border border-[#141a24]">
-                  {activeDevTab === 'curl' && `curl -X POST http://localhost:3000/api/gate/run \\
+                  {activeDevTab === 'curl' && `curl -X POST ${appOrigin}/api/gate/run \\
   -H "Content-Type: application/json" \\
-  -d '{"address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", "action": "Swap 10 ETH on Uniswap"}'`}
-                  {activeDevTab === 'ts' && `import { executeGateRun } from '@/lib/gate/runner';
-
-// Pre-action risk check
-const result = await executeGateRun(
-  '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
-  'Swap 10 ETH on Uniswap'
-);
-
-if (result.verdict !== 'ALLOW') {
-  throw new Error(\`Gate blocked execution: \${result.reason}\`);
+  -d '{"address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", "action": "Swap 10 ETH on Uniswap", "minConfidence": 0.6, "deadlineMs": 8000}'`}
+                  {activeDevTab === 'ts' && `const res = await fetch('${appOrigin}/api/gate/run', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    address: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+    action: 'Swap 10 ETH on Uniswap',
+    minConfidence: 0.6,
+    deadlineMs: 8000,
+  }),
+});
+const { data } = await res.json();
+if (data.verdict !== 'ALLOW') {
+  throw new Error(\`Gate blocked: \${data.reason}\`);
 }`}
                   {activeDevTab === 'python' && `import requests
 
-# Pre-action risk check for AI agents & bots
-res = requests.post("http://localhost:3000/api/gate/run", json={
+res = requests.post("${appOrigin}/api/gate/run", json={
     "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
     "action": "Swap 10 ETH on Uniswap",
-    "minConfidence": 0.6
+    "minConfidence": 0.6,
+    "deadlineMs": 8000
 })
 data = res.json()
 if data.get("data", {}).get("verdict") != "ALLOW":
@@ -722,7 +782,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
               Ready to protect your on-chain operations?
             </h3>
             <p className="text-sm text-gray-400 font-sans max-w-xl mx-auto">
-              Start testing live addresses right now. Query the real Telegraph network of 130+ decentralized miners in seconds.
+              Start testing live addresses right now. Query the real Telegraph miner catalog and pay for ranked answers.
             </p>
             <div>
               <button
@@ -757,7 +817,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                       Pre-Action Risk Firewall
                     </h1>
                     <p className="text-sm text-gray-400 max-w-2xl leading-relaxed">
-                      Evaluate any transaction proposal before signing. Signalgate queries live Telegraph miners in parallel to inspect contract bytecode, fraud registries, drainers, and counterparty risks.
+                      Evaluate any transaction proposal before signing. Signalgate declares live intents plus your confidence and deadline; Telegraph Engine routes to ranked miners. Signalgate does not pick miners by name.
                     </p>
                   </div>
 
@@ -768,66 +828,14 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                     </div>
                     <div className="px-4 py-2 rounded-xl bg-[#121724] border border-[#232b3e] text-xs font-mono">
                       <div className="text-gray-400 text-[10px] uppercase">Active Miners</div>
-                      <div className="text-emerald-400 font-bold">{catalog.length || 131} Live</div>
+                      <div className="text-emerald-400 font-bold">{minerCount} Live</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Quick Test Preset Chips */}
-                <div className="pt-5">
-                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
-                    Click a sample scenario to test immediately:
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAddress('0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640');
-                        setActionText('Swap 5 ETH for USDC via Uniswap V3 Pool');
-                      }}
-                      className="p-3.5 rounded-xl bg-[#101522] hover:bg-[#161e30] border border-[#1f283d] hover:border-emerald-500/40 transition-all text-left group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span className="text-xs font-bold text-white group-hover:text-emerald-300">Uniswap V3 Pool</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 ml-auto">Safe</span>
-                      </div>
-                      <p className="text-[11px] text-gray-400 truncate">Swap 5 ETH for USDC</p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAddress('0x7a250d5630b4cf539739df2c5dacb4c659f2488d');
-                        setActionText('Sign unlimited ERC-20 token approval for unknown router');
-                      }}
-                      className="p-3.5 rounded-xl bg-[#101522] hover:bg-[#161e30] border border-[#1f283d] hover:border-rose-500/40 transition-all text-left group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
-                        <span className="text-xs font-bold text-white group-hover:text-rose-300">Phishing Drainer</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 ml-auto">Threat</span>
-                      </div>
-                      <p className="text-[11px] text-gray-400 truncate">Unlimited token approval</p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAddress('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
-                        setActionText('Transfer 1,000 USDC to counterparty');
-                      }}
-                      className="p-3.5 rounded-xl bg-[#101522] hover:bg-[#161e30] border border-[#1f283d] hover:border-cyan-500/40 transition-all text-left group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
-                        <span className="text-xs font-bold text-white group-hover:text-cyan-300">USDC Contract</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 ml-auto">Standard</span>
-                      </div>
-                      <p className="text-[11px] text-gray-400 truncate">Transfer 1,000 USDC</p>
-                    </button>
-                  </div>
-                </div>
+                <p className="text-xs text-gray-500 pt-4">
+                  Empty address field on purpose. Telegraph miners score whatever wallet you type — Signalgate does not preload a sample oracle.
+                </p>
               </div>
 
               {/* Action Proposal Form */}
@@ -839,7 +847,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter EVM address (e.g. 0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640)"
+                      placeholder="Enter EVM address"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       className="w-full bg-[#070a12] border border-[#1d2538] rounded-xl px-4 py-3.5 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/60 transition-all shadow-inner"
@@ -986,7 +994,9 @@ if data.get("data", {}).get("verdict") != "ALLOW":
               {currentRun && (
                 <div className="space-y-4">
                   {/* Banner 1: Unpaid Path -> WAIT + 402 Payment Required */}
-                  {!currentRun.paymentSettled && currentRun.verdict === 'WAIT' && (
+                  {!currentRun.paymentSettled &&
+                    currentRun.verdict === 'WAIT' &&
+                    currentRun.receipts.some((r) => r.status === 'PAYMENT_REQUIRED') && (
                     <div className="rounded-xl border-2 border-amber-500/60 bg-amber-500/10 p-5 shadow-lg shadow-amber-500/5">
                       <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
@@ -1070,6 +1080,13 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                           <p className="text-xs text-gray-200 leading-relaxed font-mono">
                             {currentRun.reason}
                           </p>
+                          <button
+                            onClick={copyShareLink}
+                            className="mt-3 px-2.5 py-1 rounded bg-black/30 border border-gray-700 text-[11px] text-gray-300 hover:text-white flex items-center gap-1.5"
+                          >
+                            <Share2 className="w-3 h-3" />
+                            {shareCopied ? 'Copied share link' : 'Copy shareable run URL'}
+                          </button>
 
                           <div className="mt-3 pt-3 border-t border-gray-800 text-[11px] text-gray-400 flex flex-wrap items-center justify-between gap-2">
                             <div>
@@ -1120,10 +1137,10 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                         </div>
                         <div>
                           <div className="font-bold text-emerald-300 uppercase tracking-wider font-mono">
-                            Action Execution Verified & Dispatched
+                            Approved For Broadcast
                           </div>
                           <p className="text-gray-400 text-[11px]">
-                            Target approved by consensus. Transaction intent transitioned to EXECUTED_FOR_BROADCAST with cryptographic receipts.
+                            Target approved by miner consensus. Signalgate does not sign or broadcast. Downstream agents may proceed using this receipt.
                           </p>
                         </div>
                       </div>
@@ -1249,7 +1266,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>{catalog.length || 131} ACTIVE MINERS REGISTERED</span>
+                      <span>{minerCount} ACTIVE MINERS REGISTERED</span>
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
                       Telegraph Miner Directory
@@ -1346,25 +1363,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
 
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={async () => {
-                        setIsPollingWatchlist(true);
-                        try {
-                          if (watchlist.length > 0) {
-                            await fetch('/api/gate/run', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                address: watchlist[0].address,
-                                action: watchlist[0].proposedActionText,
-                              }),
-                            });
-                            loadWatchlist();
-                            loadAuditData();
-                          }
-                        } finally {
-                          setIsPollingWatchlist(false);
-                        }
-                      }}
+                      onClick={handlePollWatchlist}
                       disabled={isPollingWatchlist || watchlist.length === 0}
                       className="px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-xs font-bold text-emerald-300 flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
                     >
@@ -1423,25 +1422,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                     </p>
                   </div>
                   <button
-                    onClick={async () => {
-                      setIsPollingWatchlist(true);
-                      try {
-                        if (watchlist.length > 0) {
-                          await fetch('/api/gate/run', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              address: watchlist[0].address,
-                              action: watchlist[0].proposedActionText,
-                            }),
-                          });
-                          loadWatchlist();
-                          loadAuditData();
-                        }
-                      } finally {
-                        setIsPollingWatchlist(false);
-                      }
-                    }}
+                    onClick={handlePollWatchlist}
                     disabled={isPollingWatchlist || watchlist.length === 0}
                     className="px-3 py-1.5 rounded bg-[#181e2b] hover:bg-[#222b3d] text-xs text-gray-300 flex items-center gap-1.5 cursor-pointer"
                   >
@@ -1527,18 +1508,23 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                       Append-Only Gate Audit & Compliance Ledger
                     </h1>
                     <p className="text-sm text-gray-400 max-w-2xl leading-relaxed mt-1">
-                      Permanent, tamper-evident record of all pre-action decisions, quarantined threats, and downstream execution dispatches evaluated against live Telegraph miners.
+                      Log of gate runs this instance actually performed: verdict, reason, and miner receipts. On Vercel this sqlite file lives in ephemeral storage, so refresh reloads this instance only — it will not resurrect old demo rows.
                     </p>
                   </div>
 
                   <button
                     onClick={loadAuditData}
-                    className="px-4 py-2.5 rounded-xl bg-[#121724] hover:bg-[#182030] border border-[#232b3e] text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-2 transition-all cursor-pointer shrink-0"
+                    disabled={auditRefreshing}
+                    className="px-4 py-2.5 rounded-xl bg-[#121724] hover:bg-[#182030] border border-[#232b3e] text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-2 transition-all cursor-pointer shrink-0 disabled:opacity-50"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Refresh Ledger</span>
+                    <RefreshCw className={`w-3.5 h-3.5 ${auditRefreshing ? 'animate-spin' : ''}`} />
+                    <span>{auditRefreshing ? 'Refreshing...' : 'Refresh Ledger'}</span>
                   </button>
                 </div>
+
+                {auditError && (
+                  <div className="mt-4 text-xs text-rose-400 font-mono">{auditError}</div>
+                )}
 
                 {/* Sub-Tabs / Filters */}
                 <div className="flex items-center gap-2 pt-6 border-t border-[#181f2e] mt-6">
@@ -1723,7 +1709,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
                 <div className="space-y-3">
                   {executedActions.length === 0 ? (
                     <div className="p-8 text-center text-xs text-gray-500 bg-[#0f131c] border border-[#1d2433] rounded-xl">
-                      No actions dispatched to execution ledger yet. Transactions approved with verified ALLOW consensus are executed and logged here.
+                      No approved-for-broadcast records yet. ALLOW verdicts are logged here as receipts, not as signed transactions.
                     </div>
                   ) : (
                     executedActions.map((act) => (
@@ -1780,10 +1766,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
 
           {/* TAB 6: ROUTING EXPERIMENTS & PARAMETER SWEEP */}
           {activeView === 'experiments' && (
-            <div className="space-y-8">
-              <FlywheelBanner />
-              <RoutingExperiments />
-            </div>
+            <RoutingExperiments />
           )}
 
           {/* TAB 7: COMPLIANCE QUARANTINE & ACTION EXECUTION LEDGER */}
@@ -1797,7 +1780,7 @@ if data.get("data", {}).get("verdict") != "ALLOW":
       <footer className="border-t border-[#161b26] bg-[#05070a] py-8 text-xs font-mono text-gray-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
+            <img src="/logo.png" alt="" className="w-4 h-4 object-contain" />
             <span className="font-bold text-gray-300">Signalgate Protocol</span>
             <span>&bull;</span>
             <span>Decentralized Pre-Action Intelligence</span>
