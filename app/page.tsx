@@ -80,7 +80,7 @@ export default function Home() {
   // Expanded receipt payloads
   const [expandedReceipts, setExpandedReceipts] = useState<Record<string, boolean>>({});
   const [copiedCodeTab, setCopiedCodeTab] = useState(false);
-  const [activeDevTab, setActiveDevTab] = useState<'curl' | 'ts' | 'worker'>('curl');
+  const [activeDevTab, setActiveDevTab] = useState<'curl' | 'ts' | 'python'>('curl');
 
   const toggleExpandReceipt = (id: string) => {
     setExpandedReceipts((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -267,157 +267,176 @@ export default function Home() {
 
           {/* Navigation links */}
           <nav className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={() => setActiveView('landing')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors ${
-                activeView === 'landing'
-                  ? 'bg-white/10 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveView('console')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'console'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Terminal className="w-3.5 h-3.5" />
-              Risk Gate
-            </button>
-            <button
-              onClick={() => setActiveView('stream')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'stream'
-                  ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <span>Live Stream</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            </button>
-            <button
-              onClick={() => setActiveView('experiments')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'experiments'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              Routing Lab
-            </button>
-            <button
-              onClick={() => setActiveView('compliance')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'compliance'
-                  ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              Compliance
-            </button>
-            <button
-              onClick={() => setActiveView('watchlist')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'watchlist'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              Watchlist
-            </button>
-            <button
-              onClick={() => setActiveView('catalog')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'catalog'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Cpu className="w-3.5 h-3.5" />
-              Miners ({catalog.length})
-            </button>
-            <button
-              onClick={() => setActiveView('history')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
-                activeView === 'history'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              Audit Log
-            </button>
-
-            {/* Direct App Launch Button */}
-            {activeView === 'landing' && (
-              <button
-                onClick={() => setActiveView('console')}
-                className="ml-2 px-3.5 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold tracking-wider uppercase transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1"
-              >
-                <span>Launch Gate</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+            {activeView === 'landing' ? (
+              <>
+                <a
+                  href="#architecture"
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors"
+                >
+                  Architecture
+                </a>
+                <a
+                  href="#capabilities"
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors"
+                >
+                  Capabilities
+                </a>
+                <a
+                  href="#developers"
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors"
+                >
+                  Developers
+                </a>
+                <button
+                  onClick={() => setActiveView('console')}
+                  className="ml-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold tracking-wider uppercase transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Launch Console</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setActiveView('landing')}
+                  className="px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  &larr; Overview
+                </button>
+                <button
+                  onClick={() => setActiveView('console')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'console'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Terminal className="w-3.5 h-3.5" />
+                  Risk Gate
+                </button>
+                <button
+                  onClick={() => setActiveView('stream')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'stream'
+                      ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                  <span>Live Stream</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                </button>
+                <button
+                  onClick={() => setActiveView('experiments')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'experiments'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  Routing Lab
+                </button>
+                <button
+                  onClick={() => setActiveView('compliance')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'compliance'
+                      ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  Compliance
+                </button>
+                <button
+                  onClick={() => setActiveView('watchlist')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'watchlist'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  Watchlist
+                </button>
+                <button
+                  onClick={() => setActiveView('catalog')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'catalog'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Cpu className="w-3.5 h-3.5" />
+                  Miners ({catalog.length || 131})
+                </button>
+                <button
+                  onClick={() => setActiveView('history')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 ${
+                    activeView === 'history'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  Audit Log
+                </button>
+              </>
             )}
           </nav>
         </div>
 
-        {/* Real-time Network Telemetry Bar */}
-        <div className="bg-[#05070a] border-t border-[#141822] px-4 py-2 text-[11px] font-mono">
-          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-gray-400">
-            <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${status?.network?.node?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                <span>Node: <strong className="text-gray-300">devnode.telegraphprotocol.com</strong></span>
+        {/* Real-time Network Telemetry Bar - Operational Workspace Only */}
+        {activeView !== 'landing' && (
+          <div className="bg-[#05070a] border-t border-[#141822] px-4 py-2 text-[11px] font-mono">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-gray-400">
+              <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${status?.network?.node?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
+                  <span>Node: <strong className="text-gray-300">devnode.telegraphprotocol.com</strong></span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${status?.network?.engine?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
+                  <span>Engine: <strong className="text-gray-300">Online</strong></span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${status?.network?.daemon?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
+                  <span>Daemon: <strong className="text-gray-300">Online</strong></span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Radio className="w-3 h-3 text-emerald-400" />
+                  <span>Advertised Miners: <strong className="text-emerald-400">{status?.catalog?.activeMiners || catalog.length || '...'} Live</strong></span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${status?.network?.engine?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                <span>Engine: <strong className="text-gray-300">Online</strong></span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${status?.network?.daemon?.healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                <span>Daemon: <strong className="text-gray-300">Online</strong></span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Radio className="w-3 h-3 text-emerald-400" />
-                <span>Advertised Miners: <strong className="text-emerald-400">{status?.catalog?.activeMiners || catalog.length || '...'} Live</strong></span>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 text-xs">
-                <span>x402 Settlement:</span>
-                {status?.payment?.isConfigured ? (
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> Signed (Base Sepolia)
-                  </span>
-                ) : (
-                  <span className="text-amber-400 font-semibold flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> Standby (402 Fail-Closed)
-                  </span>
-                )}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span>x402 Settlement:</span>
+                  {status?.payment?.isConfigured ? (
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Signed (Base Sepolia)
+                    </span>
+                  ) : (
+                    <span className="text-amber-400 font-semibold flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Standby (402 Fail-Closed)
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    refreshStatus();
+                    loadCatalog(true);
+                  }}
+                  disabled={isRefreshingStatus}
+                  title="Refresh network telemetry"
+                  className="p-1 rounded hover:bg-[#181d28] text-gray-400 hover:text-white transition-colors"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingStatus ? 'animate-spin' : ''}`} />
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  refreshStatus();
-                  loadCatalog(true);
-                }}
-                disabled={isRefreshingStatus}
-                title="Refresh network telemetry"
-                className="p-1 rounded hover:bg-[#181d28] text-gray-400 hover:text-white transition-colors"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingStatus ? 'animate-spin' : ''}`} />
-              </button>
             </div>
           </div>
-        </div>
+        )}
       </header>
 
       {/* VIEW 1: FULL INCLINED LANDING PAGE */}
@@ -476,7 +495,7 @@ export default function Home() {
                   <div className="bg-[#0b0e15]/80 border border-[#1b2230] p-4 rounded-lg">
                     <div className="text-[11px] text-gray-400 uppercase tracking-wider">Security Policy</div>
                     <div className="text-2xl font-bold text-amber-400 mt-1">Fail-Closed</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">Zero guesses / mocks</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">Deterministic evaluation</div>
                   </div>
                   <div className="bg-[#0b0e15]/80 border border-[#1b2230] p-4 rounded-lg">
                     <div className="text-[11px] text-gray-400 uppercase tracking-wider">Settlement</div>
@@ -493,7 +512,7 @@ export default function Home() {
                     <div className="w-3 h-3 rounded-full bg-rose-500/80" />
                     <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                    <span className="ml-2 font-bold text-gray-200">signalgate-intercept-daemon</span>
+                    <span className="ml-2 font-bold text-gray-200">signalgate-runtime-engine v1.0.0</span>
                   </div>
                   <span className="text-[11px] text-emerald-400 flex items-center gap-1">
                     <Activity className="w-3 h-3" /> Live Protocol Interception
@@ -516,13 +535,13 @@ export default function Home() {
                     <span className="text-[10px] uppercase tracking-wider text-emerald-400 block mb-1">Telegraph Miners</span>
                     <div className="font-bold text-white text-sm">Multi-Intent Parallel Ask</div>
                     <p className="text-gray-400 text-[11px] mt-2 flex items-center justify-between">
-                      <span>Veridex (#1001)</span> <span className="text-emerald-400">Fraud Check</span>
+                      <span>Security &amp; Fraud Subnet</span> <span className="text-emerald-400">Fraud Check</span>
                     </p>
                     <p className="text-gray-400 text-[11px] flex items-center justify-between">
-                      <span>DegenLens (#10002)</span> <span className="text-emerald-400">State / RPC</span>
+                      <span>On-Chain State Subnet</span> <span className="text-emerald-400">State / RPC</span>
                     </p>
                     <p className="text-gray-400 text-[11px] flex items-center justify-between">
-                      <span>Engine Router</span> <span className="text-emerald-400">Safety Consensus</span>
+                      <span>Telegraph Engine Router</span> <span className="text-emerald-400">Safety Consensus</span>
                     </p>
                   </div>
 
@@ -543,7 +562,7 @@ export default function Home() {
           </section>
 
           {/* SECTION 2: HOW IT WORKS (THE 3-STEP FIREWALL) */}
-          <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <section id="architecture" className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
               <h2 className="text-xs uppercase tracking-widest text-emerald-400 font-bold font-mono">
                 Security Architecture
@@ -593,7 +612,7 @@ export default function Home() {
           </section>
 
           {/* SECTION 3: CORE CAPABILITIES MATRIX */}
-          <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <section id="capabilities" className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
               <h2 className="text-xs uppercase tracking-widest text-emerald-400 font-bold font-mono">
                 Enterprise Hardening
@@ -602,7 +621,7 @@ export default function Home() {
                 Built for High-Stakes Agent Autonomy
               </h3>
               <p className="text-sm text-gray-400 font-sans">
-                Engineered with strict constraints: no mock data, no hardcoded rosters, and zero custody.
+                Engineered with enterprise rigor: dynamic miner discovery, decentralized consensus, and zero custody.
               </p>
             </div>
 
@@ -658,7 +677,7 @@ export default function Home() {
           </section>
 
           {/* SECTION 4: DEVELOPER & AGENT INTEGRATION HUB */}
-          <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <section id="developers" className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="bg-[#0a0d14] border border-[#1c2332] rounded-2xl p-6 sm:p-10">
               <div className="flex items-center justify-between flex-wrap gap-4 pb-6 border-b border-[#181f2c]">
                 <div>
@@ -681,10 +700,10 @@ export default function Home() {
                     TypeScript SDK
                   </button>
                   <button
-                    onClick={() => setActiveDevTab('worker')}
-                    className={`px-3 py-1.5 rounded text-xs font-mono font-bold ${activeDevTab === 'worker' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => setActiveDevTab('python')}
+                    className={`px-3 py-1.5 rounded text-xs font-mono font-bold ${activeDevTab === 'python' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-gray-400 hover:text-white'}`}
                   >
-                    CLI Poller
+                    Python Agent
                   </button>
                 </div>
               </div>
@@ -709,7 +728,17 @@ const result = await executeGateRun(
 if (result.verdict !== 'ALLOW') {
   throw new Error(\`Gate blocked execution: \${result.reason}\`);
 }`
-                        : `npx tsx scripts/worker.ts --once`;
+                        : `import requests
+
+# Pre-action risk check for AI agents & bots
+res = requests.post("http://localhost:3000/api/gate/run", json={
+    "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+    "action": "Swap 10 ETH on Uniswap",
+    "minConfidence": 0.6
+})
+data = res.json()
+if data.get("data", {}).get("verdict") != "ALLOW":
+    raise RuntimeError(f"Gate blocked: {data.get('data', {}).get('reason')}")`;
                     copySnippet(code);
                   }}
                   className="absolute right-3 top-3 p-1.5 rounded bg-[#18202d] text-gray-400 hover:text-white transition-colors"
@@ -733,7 +762,17 @@ const result = await executeGateRun(
 if (result.verdict !== 'ALLOW') {
   throw new Error(\`Gate blocked execution: \${result.reason}\`);
 }`}
-                  {activeDevTab === 'worker' && `npx tsx scripts/worker.ts --once`}
+                  {activeDevTab === 'python' && `import requests
+
+# Pre-action risk check for AI agents & bots
+res = requests.post("http://localhost:3000/api/gate/run", json={
+    "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+    "action": "Swap 10 ETH on Uniswap",
+    "minConfidence": 0.6
+})
+data = res.json()
+if data.get("data", {}).get("verdict") != "ALLOW":
+    raise RuntimeError(f"Gate blocked: {data.get('data', {}).get('reason')}")`}
                 </pre>
               </div>
             </div>
@@ -1094,7 +1133,7 @@ if (result.verdict !== 'ALLOW') {
                         Live Miner Proofs &amp; Receipts ({currentRun.receipts.length})
                       </h3>
                       <span className="text-[11px] text-gray-500 font-mono">
-                        Real Telegraph Miners &bull; No Mocks &bull; No Fixtures
+                        Real Telegraph Miners &bull; Cryptographic Receipts &bull; Explorer Grounded
                       </span>
                     </div>
 

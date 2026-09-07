@@ -97,7 +97,7 @@ async function runFlywheel() {
   console.log(`- New asks dispatched: ${receipts.length}`);
   console.log(`- Total live asks dispatched: ${finalStats.totalAsksDispatched}`);
   console.log(`- Total gate runs recorded: ${finalStats.totalGateRuns}`);
-  console.log(`- Progress toward $\\ge 100$ Track 3 request target: ${Math.min(100, Math.round((finalStats.totalAsksDispatched / 100) * 100))}% (${finalStats.totalAsksDispatched}/100)`);
+  console.log(`- Progress toward 100 live miner request target: ${Math.min(100, Math.round((finalStats.totalAsksDispatched / 100) * 100))}% (${finalStats.totalAsksDispatched}/100)`);
   console.log('===============================================================');
 }
 

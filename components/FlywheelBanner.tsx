@@ -70,7 +70,7 @@ export default function FlywheelBanner() {
             </span>
           </div>
           <p className="text-xs text-gray-400 max-w-xl">
-            Track 3 apps drive verifiable demand to live miners. Every gate check and batch run sends real requests to live miners on the network. Target: $\ge 100$ requests.
+            Signalgate drives continuous verifiable demand to live Telegraph miners. Every gate check and batch run sends real requests to live miners on the network. Target milestone: 100 requests.
           </p>
         </div>
 

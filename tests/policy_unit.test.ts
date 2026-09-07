@@ -207,7 +207,7 @@ describe('Signalgate Fail-Closed Policy Unit Tests', () => {
     assert.ok(found, 'Executed action must be recorded in ledger');
   });
 
-  test('Flywheel: Track 3 live requests stats and progress calculation', () => {
+  test('Flywheel: Live miner requests stats and progress calculation', () => {
     const stats = getFlywheelStats();
     assert.ok(typeof stats.totalAsksDispatched === 'number');
     assert.ok(typeof stats.totalGateRuns === 'number');
